@@ -2,10 +2,10 @@ use std::fs::File;
 use std::io::{prelude::*, BufReader};
 
 #[derive(Debug)]
-struct HoHoError{}
+struct HoHoError {}
 
 #[derive(PartialEq)]
-enum Choice{
+enum Choice {
     Rock = 1,
     Paper,
     Scissors,
@@ -18,7 +18,7 @@ impl std::str::FromStr for Choice {
             "A" | "X" => Ok(Choice::Rock),
             "B" | "Y" => Ok(Choice::Paper),
             "C" | "Z" => Ok(Choice::Scissors),
-            _ => Err(HoHoError{}),
+            _ => Err(HoHoError {}),
         }
     }
 }
@@ -33,7 +33,7 @@ impl Choice {
         }
         0
     }
-    fn beats (&self) -> Choice {
+    fn beats(&self) -> Choice {
         match self {
             Choice::Rock => Choice::Scissors,
             Choice::Paper => Choice::Rock,
@@ -49,7 +49,7 @@ impl Choice {
     }
 }
 
-struct Game{
+struct Game {
     pub opponent: Choice,
     pub you: Choice,
 }
@@ -57,7 +57,7 @@ struct Game{
 impl std::str::FromStr for Game {
     type Err = HoHoError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let str_split = s.split(" ").collect::<Vec<&str>>();
+        let str_split = s.split(' ').collect::<Vec<&str>>();
         let opponent: Choice = str_split[0].parse()?;
         // game1
         //let you: Choice = str_split[1].parse()?;
@@ -65,14 +65,14 @@ impl std::str::FromStr for Game {
             "X" => opponent.beats(),
             "Y" => str_split[0].parse()?,
             "Z" => opponent.loses(),
-            _ => return Err(HoHoError{})
+            _ => return Err(HoHoError {}),
         };
-        Ok(Game{opponent, you})
+        Ok(Game { opponent, you })
     }
 }
 
 impl Game {
-    fn outcome (&self) -> i32 {
+    fn outcome(&self) -> i32 {
         self.you.cmp(&self.opponent)
     }
 
@@ -82,7 +82,7 @@ impl Game {
     }
 }
 
-fn main() -> std::io::Result<()>{
+fn main() -> std::io::Result<()> {
     //read in file
     let file = File::open("input")?;
     let reader = BufReader::new(file);
