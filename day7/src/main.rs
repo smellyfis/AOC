@@ -105,25 +105,14 @@ impl Sizer for FileSystemTypes {
 }
 
 fn recurse_part1(collector: &mut Vec<usize>, cwd: &MyDir) -> usize {
-    let mut cwd_size: usize = cwd
+    let cwd_size: usize = cwd
         .objects
         .iter()
-        .filter_map(|x| match x {
-            FileSystemTypes::MyFile(y) => Some(y.size()),
-            _ => None,
+        .map(|x| match x {
+            FileSystemTypes::MyFile(y) => y.size(),
+            FileSystemTypes::MyDir(dir) => recurse_part1(collector, &dir.borrow()),
         })
         .sum();
-    cwd_size += cwd
-        .objects
-        .iter()
-        .filter_map(|x| match x {
-            FileSystemTypes::MyDir(y) => Some(y),
-            _ => None,
-        })
-        .fold(0_usize, |folder, x| {
-            let sub_size = recurse_part1(collector, &x.borrow());
-            folder + sub_size
-        });
     collector.push(cwd_size);
     cwd_size
 }
