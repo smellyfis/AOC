@@ -7,6 +7,18 @@ trait Sizer {
     fn size(&self) -> usize;
 }
 
+impl Sizer for Vec<usize> {
+    fn size(&self) -> usize {
+        self.iter().sum()
+    }
+}
+
+impl<T:Sizer> Sizer for Vec<T>{
+    fn size(&self) -> usize {
+        self.iter().map(|x| x.size()).sum()
+    }
+}
+
 #[derive(Clone, Debug)]
 struct MyFile {
     _name: String,
@@ -74,10 +86,7 @@ impl MyDir {
 }
 impl Sizer for MyDir {
     fn size(&self) -> usize {
-        self.objects
-            .iter()
-            .map(|obj|  obj.size())
-            .sum::<usize>()
+        self.objects.size()
     }
 }
 
@@ -94,6 +103,23 @@ impl Sizer for FileSystemTypes {
             FileSystemTypes::MyDir(dir) => dir.borrow().size(),
         }
     }
+}
+
+fn recurse_part1(collector: &mut Vec<usize>, cwd: &MyDir) -> usize{
+    let mut cwd_size:usize =  cwd.objects.iter().filter_map(|x| match x {
+        FileSystemTypes::MyFile(y)=> Some(y.size()),
+        _ => None,
+    }).sum();
+    cwd_size += cwd.objects.iter().filter_map(|x| match x {
+        FileSystemTypes::MyDir(y) => Some(y),
+        _ => None,
+    }).fold(0_usize, |folder, x| {
+        let sub_size = recurse_part1(collector, &x.borrow());
+        folder + sub_size
+    });
+    collector.push(cwd_size);
+    cwd_size
+
 }
 
 fn main() -> std::io::Result<()> {
@@ -137,10 +163,18 @@ fn main() -> std::io::Result<()> {
             _ => panic!("unknown command {}", line),
         }
     });
-    let mut part1 = vec![root.borrow().size()];
+    let mut part1 = Vec::new();
+    let max = recurse_part1(&mut part1, &root.borrow());
+    let part1_ans:usize = part1.iter().filter(|x| **x <= 100_000).sum();
+    println!("{}", part1_ans);
     // TODO do a recursive function that get current directory size and puts it in vector then go
     // into each sub directory
     // find all less than 100_000 and sum
 
+    //part 2
+    let free_space = 70_000_000_usize - max;
+    let needed_clear_space = 30_000_000_usize - free_space;
+    let part2 = part1.iter().filter(|x| **x >= needed_clear_space).min();
+    println!("{}", part2.unwrap());
     Ok(())
 }
