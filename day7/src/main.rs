@@ -13,7 +13,7 @@ impl Sizer for Vec<usize> {
     }
 }
 
-impl<T:Sizer> Sizer for Vec<T>{
+impl<T: Sizer> Sizer for Vec<T> {
     fn size(&self) -> usize {
         self.iter().map(|x| x.size()).sum()
     }
@@ -76,7 +76,6 @@ impl MyDir {
 
     fn new(name: impl Into<String>, parent_dir: Option<Rc<RefCell<MyDir>>>) -> Self {
         let name: String = name.into();
-        let parent_dir = parent_dir.map(|x| x.clone());
         MyDir {
             name,
             objects: Vec::new(),
@@ -105,21 +104,28 @@ impl Sizer for FileSystemTypes {
     }
 }
 
-fn recurse_part1(collector: &mut Vec<usize>, cwd: &MyDir) -> usize{
-    let mut cwd_size:usize =  cwd.objects.iter().filter_map(|x| match x {
-        FileSystemTypes::MyFile(y)=> Some(y.size()),
-        _ => None,
-    }).sum();
-    cwd_size += cwd.objects.iter().filter_map(|x| match x {
-        FileSystemTypes::MyDir(y) => Some(y),
-        _ => None,
-    }).fold(0_usize, |folder, x| {
-        let sub_size = recurse_part1(collector, &x.borrow());
-        folder + sub_size
-    });
+fn recurse_part1(collector: &mut Vec<usize>, cwd: &MyDir) -> usize {
+    let mut cwd_size: usize = cwd
+        .objects
+        .iter()
+        .filter_map(|x| match x {
+            FileSystemTypes::MyFile(y) => Some(y.size()),
+            _ => None,
+        })
+        .sum();
+    cwd_size += cwd
+        .objects
+        .iter()
+        .filter_map(|x| match x {
+            FileSystemTypes::MyDir(y) => Some(y),
+            _ => None,
+        })
+        .fold(0_usize, |folder, x| {
+            let sub_size = recurse_part1(collector, &x.borrow());
+            folder + sub_size
+        });
     collector.push(cwd_size);
     cwd_size
-
 }
 
 fn main() -> std::io::Result<()> {
@@ -158,23 +164,20 @@ fn main() -> std::io::Result<()> {
                 cursor.clone()
             }
             ["$", "cd", "/"] => root.clone(), //set current directory back to root
-            ["$", "cd", ".."] => cursor.borrow().move_up().unwrap().clone(),
-            ["$", "cd", dir] => cursor.borrow().move_down(dir).unwrap().clone(),
+            ["$", "cd", ".."] => cursor.borrow().move_up().unwrap(),
+            ["$", "cd", dir] => cursor.borrow().move_down(dir).unwrap(),
             _ => panic!("unknown command {}", line),
         }
     });
     let mut part1 = Vec::new();
     let max = recurse_part1(&mut part1, &root.borrow());
-    let part1_ans:usize = part1.iter().filter(|x| **x <= 100_000).sum();
-    println!("{}", part1_ans);
-    // TODO do a recursive function that get current directory size and puts it in vector then go
-    // into each sub directory
-    // find all less than 100_000 and sum
+    let part1_ans: usize = part1.iter().filter(|x| **x <= 100_000).sum();
+    println!("Part 1: {}", part1_ans);
 
     //part 2
     let free_space = 70_000_000_usize - max;
     let needed_clear_space = 30_000_000_usize - free_space;
     let part2 = part1.iter().filter(|x| **x >= needed_clear_space).min();
-    println!("{}", part2.unwrap());
+    println!("Part 2: {}", part2.unwrap());
     Ok(())
 }
