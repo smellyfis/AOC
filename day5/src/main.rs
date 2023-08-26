@@ -6,15 +6,15 @@ struct Crate {
     label: String,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 struct GameBoard {
-    labels: Vec<String>,
+    _labels: Vec<String>,
     board: Vec<Vec<Crate>>,
 }
 
 impl GameBoard {
-    fn game1_move(&mut self, count: usize, from: usize, to: usize) {
-        let ref mut v: Vec<Crate> = Vec::new();
+    fn _game1_move(&mut self, count: usize, from: usize, to: usize) {
+        let v = &mut Vec::new();
         let work = self.board.get_mut(from - 1).unwrap();
         for _ in 0..count {
             v.push(work.pop().unwrap());
@@ -25,7 +25,7 @@ impl GameBoard {
         }
     }
     fn game2_move(&mut self, count: usize, from: usize, to: usize) {
-        let ref mut v: Vec<Crate> = Vec::new();
+        let v = &mut Vec::new();
         let work = self.board.get_mut(from - 1).unwrap();
         for _ in 0..count {
             v.push(work.pop().unwrap());
@@ -67,7 +67,10 @@ impl From<Vec<String>> for GameBoard {
                 }
             })
         });
-        GameBoard { labels, board }
+        GameBoard {
+            _labels: labels,
+            board,
+        }
     }
 }
 
