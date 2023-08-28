@@ -1,6 +1,8 @@
 #![warn(clippy::all, clippy::pedantic)]
+
 use derive_getters::Getters;
 use itertools::Itertools;
+use log::{debug, trace};
 use nom::{
     branch::alt,
     bytes::complete::tag,
@@ -10,7 +12,6 @@ use nom::{
     sequence::{delimited, preceded},
     IResult, Parser,
 };
-use log::{debug, trace};
 use std::{
     collections::VecDeque, error, fmt::Display, fs::File, io::Read, num::ParseIntError,
     str::FromStr,
@@ -150,8 +151,12 @@ impl Test {
         let (input, true_to) = match preceded(
             tag("If true: throw to monkey "),
             nom::character::complete::u64.map(|x| usize::try_from(x).unwrap()),
-        )(input){
-            Err(e) => {println!("{e:?}"); Err(e)},
+        )(input)
+        {
+            Err(e) => {
+                println!("{e:?}");
+                Err(e)
+            }
             x => x,
         }?;
         trace!("parse test 4");
@@ -186,7 +191,7 @@ impl Ape {
     }
 
     pub fn inspect(&mut self, relief: bool) -> Option<u64> {
-        let relief: u64 = if relief {3} else {1};
+        let relief: u64 = if relief { 3 } else { 1 };
         let item = self.items.pop_front()?;
         self.inspected += 1;
         Some(self.operation.do_op(item) / relief)
@@ -331,7 +336,7 @@ fn main() {
     //game 1
     for _ in 0..20 {
         for i in 0..monkeys.len() {
-            while let Some( item) = monkeys[i].inspect(true){
+            while let Some(item) = monkeys[i].inspect(true) {
                 let throw_to = monkeys[i].throw(item);
                 monkeys[throw_to].catch(item);
             }
@@ -348,7 +353,10 @@ fn main() {
         .product::<u64>();
     println!("Part 1: {val}");
 
-    let magic = monkeys_game2.iter().map(|x| x.test().divisor()).product::<u64>();
+    let magic = monkeys_game2
+        .iter()
+        .map(|x| x.test().divisor())
+        .product::<u64>();
 
     for _ in 0..10_000 {
         for i in 0..monkeys_game2.len() {

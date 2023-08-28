@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
 
@@ -28,22 +30,21 @@ fn main() -> std::io::Result<()> {
         .lines()
         .fold(Vec::new(), |mut acc: Vec<Vec<String>>, line| {
             if acc.is_empty() || acc.last().unwrap().len() == 3 {
-                acc.push(Vec::new())
+                acc.push(Vec::new());
             }
             acc.last_mut().unwrap().push(line.unwrap());
             acc
         })
         .iter()
         .map(|group| {
-            let (g1, g2, g3) = match group.as_slice() {
-                [g1, g2, g3] => (g1, g2, g3),
-                _ => panic!("not get here"),
+            let [g1, g2, g3] = group.as_slice() else {
+                panic!("not get here")
             };
             match g1
                 .chars()
                 .fold(Vec::new(), |mut combo: Vec<char>, ch| {
                     if g2.contains(ch) {
-                        combo.push(ch)
+                        combo.push(ch);
                     }
                     combo
                 })

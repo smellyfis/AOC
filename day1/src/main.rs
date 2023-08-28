@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
 
@@ -20,16 +22,13 @@ fn main() -> std::io::Result<()> {
 
     //order the elves since we don't care about position anymore
     elves.sort_by(|a, b| b.cmp(a));
-    let max = *elves.get(0).expect("faliure");
+    let max = *elves.first().expect("faliure");
     let counts = elves.iter().take(3).sum::<u64>();
-    //elves.sort();
-    //let max = elves.len() - 1;
 
     //part 1 is get the max
     println!("Part 1: {max}");
 
     //Part 2 is get the sum of the largest 3
-    //let counts: u64 = elves[(max - 2)..].iter().sum();
     println!("Part 2: {counts}");
 
     Ok(())

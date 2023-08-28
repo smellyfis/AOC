@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use std::collections::HashMap;
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
@@ -18,7 +20,7 @@ fn main() -> std::io::Result<()> {
                 }
                 holder.insert(c, true);
             }
-            println!("Part 1: line: {} marker at: {}", line_no, i);
+            println!("Part 1: line: {line_no} marker at: {i}");
             break;
         }
         'checker: for i in 14..line.len() {
@@ -30,7 +32,7 @@ fn main() -> std::io::Result<()> {
                 }
                 holder.insert(c, true);
             }
-            println!("Part 2: line: {} marker at: {}", line_no, i);
+            println!("Part 2: line: {line_no} marker at: {i}");
             break;
         }
     });

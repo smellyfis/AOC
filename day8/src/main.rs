@@ -1,26 +1,32 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use itertools::Itertools;
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
 
-fn main() -> std::io::Result<()> {
-    //Read in file
-    let file = File::open("input")?;
+fn get_board(file: &File) -> Vec<Vec<u8>> {
     let reader = BufReader::new(file);
 
-    let board = reader
+    reader
         .lines()
         .map(|line| {
             line.unwrap()
                 .matches(char::is_numeric)
-                .map(|num| num.parse::<u8>().unwrap())
-                .collect::<Vec<_>>()
+                .map(|num| num.parse().unwrap())
+                .collect()
         })
-        .collect::<Vec<Vec<_>>>();
+        .collect()
+}
+
+fn main() -> std::io::Result<()> {
+    //Read in file
+    let file = File::open("input")?;
+
+    let board = get_board(&file);
+
     let y_len = board.len();
-    let x_len = board.iter().map(|x| x.len()).max().unwrap();
-    if board.iter().any(|x| x.len() != x_len) {
-        panic!("board isn't square")
-    }
+    let x_len = board.iter().map(std::vec::Vec::len).max().unwrap();
+    assert!(board.iter().any(|x| x.len() != x_len), "board isn't square");
 
     let mut visible: Vec<(usize, usize, u8)> = Vec::new();
     let mut max_in_row_from_left = vec![0_usize; y_len];
@@ -142,14 +148,14 @@ fn main() -> std::io::Result<()> {
         }
     }
     let part1 = visible.iter().unique().count();
-    println!("Part 1: {}", part1);
+    println!("Part 1: {part1}");
 
     let part2 = scores
         .iter()
         .map(|x| x.iter().max().unwrap())
         .max()
         .unwrap();
-    println!("Part 2: {}", part2);
+    println!("Part 2: {part2}");
 
     Ok(())
 }

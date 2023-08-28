@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use std::cell::RefCell;
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
@@ -15,7 +17,7 @@ impl Sizer for Vec<usize> {
 
 impl<T: Sizer> Sizer for Vec<T> {
     fn size(&self) -> usize {
-        self.iter().map(|x| x.size()).sum()
+        self.iter().map(Sizer::size).sum()
     }
 }
 
@@ -50,7 +52,7 @@ impl MyDir {
                 .iter()
                 .filter_map(|x| match x {
                     FileSystemTypes::MyDir(y) => Some(y),
-                    _ => None,
+                    FileSystemTypes::MyFile(_) => None,
                 })
                 .find(|x| *x.borrow().name == dir)?
                 .clone(),
@@ -63,7 +65,7 @@ impl MyDir {
         }));
     }
     //has to be  a static method...
-    fn mkdir(self_: Rc<RefCell<MyDir>>, name: impl Into<String>) {
+    fn mkdir(self_: &Rc<RefCell<MyDir>>, name: impl Into<String>) {
         self_
             .borrow_mut()
             .objects
@@ -136,11 +138,11 @@ fn main() -> std::io::Result<()> {
         if ls_mode && line.as_bytes()[0] != b'$' {
             //do adding to cursor
             match line.split_whitespace().collect::<Vec<_>>()[..] {
-                ["dir", name] => MyDir::mkdir(cursor.clone(), name),
+                ["dir", name] => MyDir::mkdir(&cursor.clone(), name),
                 [size, name] => cursor
                     .borrow_mut()
                     .touch(name, size.parse::<usize>().unwrap()),
-                _ => panic!("oops {}", line),
+                _ => panic!("oops {line}"),
             };
             // end the for_each
             return;
@@ -155,13 +157,13 @@ fn main() -> std::io::Result<()> {
             ["$", "cd", "/"] => root.clone(), //set current directory back to root
             ["$", "cd", ".."] => cursor.borrow().move_up().unwrap(),
             ["$", "cd", dir] => cursor.borrow().move_down(dir).unwrap(),
-            _ => panic!("unknown command {}", line),
+            _ => panic!("unknown command {line}"),
         }
     });
     let mut part1 = Vec::new();
     let max = recurse_part1(&mut part1, &root.borrow());
     let part1_ans: usize = part1.iter().filter(|x| **x <= 100_000).sum();
-    println!("Part 1: {}", part1_ans);
+    println!("Part 1: {part1_ans}");
 
     //part 2
     let free_space = 70_000_000_usize - max;

@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
 
@@ -40,7 +42,7 @@ impl GameBoard {
         self.board
             .iter()
             .map(|x| x.last().unwrap().label.clone())
-            .fold("".to_string(), |acc, x| acc + &x)
+            .fold(String::new(), |acc, x| acc + &x)
     }
 }
 impl From<Vec<String>> for GameBoard {
@@ -50,12 +52,12 @@ impl From<Vec<String>> for GameBoard {
         // get labels
         let labels = label_vec
             .split_whitespace()
-            .map(|x| x.to_string())
+            .map(std::string::ToString::to_string)
             .collect::<Vec<String>>();
         //TODO sscanf for crates
         board_vec.reverse();
         let mut board = vec![Vec::new(); labels.len()];
-        board_vec.iter().for_each(|line| {
+        for line in &board_vec {
             board.iter_mut().enumerate().for_each(|(i, col)| {
                 let (begin, end) = (i * 4, std::cmp::min(i * 4 + 4, line.len()));
                 let crate_str = line[begin..end]
@@ -65,8 +67,8 @@ impl From<Vec<String>> for GameBoard {
                 if !crate_str.is_empty() {
                     col.push(Crate { label: crate_str });
                 }
-            })
-        });
+            });
+        }
         GameBoard {
             _labels: labels,
             board,
@@ -94,10 +96,10 @@ fn main() -> std::io::Result<()> {
             acc
         },
     );
-    println!("{:?}", board_lines);
+    println!("{board_lines:?}");
     let mut board = GameBoard::from(board_lines);
 
-    movement_lines.iter().for_each(|line| {
+    for line in &movement_lines {
         match line
             .split_whitespace()
             .filter_map(|x| x.parse::<usize>().ok())
@@ -112,7 +114,7 @@ fn main() -> std::io::Result<()> {
                     .collect::<Vec<usize>>()
             ),
         };
-    });
+    }
 
     println!("{}", board.get_tops());
 

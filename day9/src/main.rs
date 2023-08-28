@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use std::collections::HashSet;
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
@@ -7,7 +9,7 @@ fn main() -> std::io::Result<()> {
     let file = File::open("input")?;
     let reader = BufReader::new(file);
 
-    let mut snake = vec![(0_i32, 0_i32); 10];
+    let mut snake = [(0_i32, 0_i32); 10];
     let mut visited: Vec<HashSet<(i32, i32)>> = vec![HashSet::new(); 10];
 
     //intialize the visited
@@ -20,7 +22,7 @@ fn main() -> std::io::Result<()> {
         let line = line.unwrap();
         let (direction, steps) = match line.split(' ').collect::<Vec<&str>>()[..] {
             [dir, step] => (dir, step.parse::<usize>().unwrap()),
-            _ => panic!("failed parseing line {}", line),
+            _ => panic!("failed parseing line {line}"),
         };
         for _ in 0..steps {
             let (mut cur_head_x, mut cur_head_y) = snake[0];
@@ -29,7 +31,7 @@ fn main() -> std::io::Result<()> {
                 "R" => cur_head_x += 1,
                 "U" => cur_head_y += 1,
                 "D" => cur_head_y -= 1,
-                x => panic!("invalid movement {}", x),
+                x => panic!("invalid movement {x}"),
             };
             let new_head_pos = (cur_head_x, cur_head_y);
             snake[0] = new_head_pos;
@@ -60,8 +62,8 @@ fn main() -> std::io::Result<()> {
         }
     });
     let part1 = visited[1].len();
-    println!("Part 1: {}", part1);
+    println!("Part 1: {part1}");
     let part2 = visited[9].len();
-    println!("Part 2: {}", part2);
+    println!("Part 2: {part2}");
     Ok(())
 }

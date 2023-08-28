@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use std::fs::File;
 use std::io::{prelude::*, BufReader};
 
@@ -61,7 +63,7 @@ impl std::str::FromStr for Game {
         let opponent: Choice = str_split[0].parse()?;
         // game1
         //let you: Choice = str_split[1].parse()?;
-        let you = match str_split[1] {
+        let you = match *str_split.get(1).expect("msg") {
             "X" => opponent.beats(),
             "Y" => str_split[0].parse()?,
             "Z" => opponent.loses(),
