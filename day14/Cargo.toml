@@ -1,5 +1,5 @@
 [package]
-name = "day13"
+name = "day14"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -9,4 +9,3 @@ repository.workspace = true
 
 [dependencies]
 nom.workspace = true
-log.workspace = true
