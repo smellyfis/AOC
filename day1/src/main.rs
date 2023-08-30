@@ -1,14 +1,25 @@
 #![warn(clippy::all, clippy::pedantic)]
 
-use std::fs::File;
-use std::io::{prelude::*, BufReader};
+use std::fs;
 
-fn main() -> std::io::Result<()> {
-    let file = File::open("input")?;
-    let reader = BufReader::new(file);
+use itertools::Itertools;
+fn part1(input: &[u64]) -> String {
+    input.iter().max().unwrap().to_string()
+}
 
-    let mut elves = reader.lines().fold(vec![0_u64], |mut acc, line| {
-        let line = line.unwrap();
+fn part2(input: &[u64]) -> String {
+    input
+        .iter()
+        //order the elves since we don't care about position anymore
+        .sorted_by(|a, b| b.cmp(a))
+        .take(3)
+        .copied()
+        .sum::<u64>()
+        .to_string()
+}
+
+fn parse_input(input: &str) -> Vec<u64> {
+    input.lines().fold(vec![0_u64], |mut acc, line| {
         //empty lines mean new elf
         if line.is_empty() {
             acc.push(0_u64);
@@ -18,18 +29,49 @@ fn main() -> std::io::Result<()> {
             *last += line.parse::<u64>().unwrap();
         }
         acc
-    });
+    })
+}
+fn main() -> std::io::Result<()> {
+    let file = fs::read_to_string("input")?;
 
-    //order the elves since we don't care about position anymore
-    elves.sort_by(|a, b| b.cmp(a));
-    let max = *elves.first().expect("faliure");
-    let counts = elves.iter().take(3).sum::<u64>();
+    let elves = parse_input(&file);
 
     //part 1 is get the max
-    println!("Part 1: {max}");
+    println!("Part 1: {}", part1(&elves));
 
     //Part 2 is get the sum of the largest 3
-    println!("Part 2: {counts}");
+    println!("Part 2: {}", part2(&elves));
 
     Ok(())
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    const INPUT: &str = "2000
+3000
+
+4000
+
+5000
+6000
+
+7000
+8000
+9000
+
+10000";
+
+    #[test]
+    fn part1_works() {
+        let input = parse_input(INPUT);
+        assert_eq!(part1(&input), "24000")
+    }
+
+    #[test]
+    fn part2_works() {
+        let input = parse_input(INPUT);
+        assert_eq!(part2(&input), "45000")
+    }
 }
