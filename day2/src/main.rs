@@ -1,7 +1,6 @@
 #![warn(clippy::all, clippy::pedantic)]
 
-use std::fs::File;
-use std::io::{prelude::*, BufReader};
+use std::fs;
 
 #[derive(Debug)]
 struct HoHoError {}
@@ -51,12 +50,33 @@ impl Choice {
     }
 }
 
-struct Game {
+struct Game1 {
+    pub opponent: Choice,
+    pub you: Choice,
+}
+impl Game1 {
+    fn score(self) -> i32 {
+        let outcome = self.you.cmp(&self.opponent);
+        (self.you as i32) + outcome
+    }
+}
+
+impl std::str::FromStr for Game1 {
+    type Err = HoHoError;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let str_split = s.split(' ').collect::<Vec<&str>>();
+        let opponent: Choice = str_split[0].parse()?;
+        let you: Choice = str_split[1].parse()?;
+        Ok(Self { opponent, you })
+    }
+}
+
+struct Game2 {
     pub opponent: Choice,
     pub you: Choice,
 }
 
-impl std::str::FromStr for Game {
+impl std::str::FromStr for Game2 {
     type Err = HoHoError;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let str_split = s.split(' ').collect::<Vec<&str>>();
@@ -69,11 +89,11 @@ impl std::str::FromStr for Game {
             "Z" => opponent.loses(),
             _ => return Err(HoHoError {}),
         };
-        Ok(Game { opponent, you })
+        Ok(Self { opponent, you })
     }
 }
 
-impl Game {
+impl Game2 {
     fn outcome(&self) -> i32 {
         self.you.cmp(&self.opponent)
     }
@@ -84,15 +104,45 @@ impl Game {
     }
 }
 
+fn part1(input: &str) -> String {
+    input
+        .lines()
+        .map(|line| line.parse::<Game1>().unwrap().score())
+        .sum::<i32>()
+        .to_string()
+}
+fn part2(input: &str) -> String {
+    input
+        .lines()
+        .map(|line| line.parse::<Game2>().unwrap().score())
+        .sum::<i32>()
+        .to_string()
+}
+
 fn main() -> std::io::Result<()> {
     //read in file
-    let file = File::open("input")?;
-    let reader = BufReader::new(file);
+    let file = fs::read_to_string("input")?;
 
-    let score: i32 = reader
-        .lines()
-        .map(|line| line.unwrap().parse::<Game>().unwrap().score())
-        .sum();
-    println!("Puzzle 1: {score}");
+    println!("Part2: {}", part1(&file));
+    println!("Part2: {}", part2(&file));
     Ok(())
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    const INPUT: &str = "A Y
+B X
+C Z";
+
+    #[test]
+    fn part1_works() {
+        debug_assert_eq!(part1(INPUT), "15");
+    }
+
+    #[test]
+    fn part2_works() {
+        debug_assert_eq!(part2(INPUT), "12");
+    }
 }
