@@ -35,7 +35,7 @@ fn part2(input: &str) -> String {
     work(input, 14)
 }
 
-fn main() -> () {
+fn main() {
     //Read in file
     let file = fs::read_to_string("input").unwrap();
 
