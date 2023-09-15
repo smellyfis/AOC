@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use std::{
     collections::{HashMap, VecDeque},
     fs,
@@ -23,7 +25,7 @@ struct Valve {
 impl<'a> Parser<&'a str, Self, Error<&'a str>> for Valve {
     fn parse(&mut self, input: &'a str) -> nom::IResult<&'a str, Self, Error<&'a str>> {
         let (input, label) =
-            preceded(tag("Valve "), complete::alpha1.map(|s: &str| s.to_owned()))(input)?;
+            preceded(tag("Valve "), complete::alpha1.map(ToOwned::to_owned))(input)?;
         let (input, release) =
             preceded(tag(" has flow rate="), complete::u128.map(|s| s as usize))(input)?;
         let (input, connected_to) = preceded(
@@ -31,7 +33,7 @@ impl<'a> Parser<&'a str, Self, Error<&'a str>> for Valve {
                 tag("; tunnels lead to valves "),
                 tag("; tunnel leads to valve "),
             )),
-            separated_list1(tag(", "), complete::alpha1.map(|s: &str| s.to_owned())),
+            separated_list1(tag(", "), complete::alpha1.map(ToOwned::to_owned)),
         )(input)?;
         self.label = label;
         self.release = release;
@@ -67,7 +69,7 @@ fn convert_to_distance(board: &HashMap<String, Valve>) -> Vec<SimpleValve> {
         .collect::<Vec<_>>();
     let mut distances: HashMap<(&str, &str), usize> = HashMap::new();
     //get the distance for each possible connection
-    care_about.iter().for_each(|(from_pos, from_valve)| {
+    for (from_pos, from_valve) in &care_about {
         let mut queue = VecDeque::from([(0_usize, *from_valve)]);
         while let Some((dist, check)) = queue.pop_front() {
             let dist = dist + 1;
@@ -82,7 +84,7 @@ fn convert_to_distance(board: &HashMap<String, Valve>) -> Vec<SimpleValve> {
                 queue.push_back((dist, v));
             }
         }
-    });
+    }
 
     //makeing distances immutable
     let distances = distances;
