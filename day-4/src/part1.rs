@@ -1,68 +1,90 @@
 #![warn(clippy::all, clippy::pedantic)]
 
-use nom::{ bytes::complete::tag,
+use nom::{
+    bytes::complete::tag,
     character::complete,
+    multi::{fold_many1, separated_list1},
+    sequence::{preceded, separated_pair, tuple},
     IResult,
-    multi::separated_list1,
-    sequence::{preceded, separated_pair}};
+};
+use std::collections::HashSet;
 
 struct Card {
     pub _id: u8,
-    pub game_numbers: Vec<u8>,
-    pub my_numbers: Vec<u8>,
+    pub game_numbers: HashSet<u8>,
+    pub my_numbers: HashSet<u8>,
 }
 
 impl Card {
-    fn get_score(&self) -> Option<usize>{
-        let count = self.my_numbers.iter().filter(|x| self.game_numbers.contains(x)).count();
+    fn get_win_count(&self) -> usize {
+        self.my_numbers.intersection(&self.game_numbers).count()
+    }
+    fn get_score(&self) -> Option<usize> {
+        let count = self.get_win_count();
         if count == 0 {
             None
         } else {
-            Some(2_usize.pow(count as u32- 1))
+            Some(2_usize.pow(u32::try_from(count).expect("shouldn't have a lot of cards") - 1))
         }
     }
 }
 
+/// day 4 part 1 of aoc 2023
+///
+/// # Arguments
+/// - input the input for today's puzzle
+///
+/// # Panics
+/// panics whne it cannot parse the input OR when ever the number of game numbers is greater than
+/// usize
+#[must_use]
 pub fn part1(input: &str) -> String {
     let (_, cards) = parse_input(input).expect("there should be input");
-    cards.iter().filter_map(Card::get_score).sum::<usize>().to_string()
+    cards
+        .iter()
+        .filter_map(Card::get_score)
+        .sum::<usize>()
+        .to_string()
 }
 
-fn parse_num_list (input: &str) -> IResult<&str, Vec<u8>> {
-    separated_list1(complete::space1, complete::u8)(input)
+fn parse_num_list(input: &str) -> IResult<&str, HashSet<u8>> {
+    fold_many1(
+        tuple((complete::u8, complete::space0)),
+        HashSet::new,
+        |mut acc, (x, _)| {
+            acc.insert(x);
+            acc
+        },
+    )(input)
 }
 
-fn parse_numbers(input: &str) -> IResult<&str, (Vec<u8>, Vec<u8>)> {
-    separated_pair(parse_num_list, barspace, parse_num_list)(input)
-}
-
-fn barspace(input: &str) -> IResult<&str, () > {
-    let (i, _) = complete::space1(input)?;
-    let (i,_) = tag("|")(i)?;
-    let (i, _) = complete::space1(i)?;
-    Ok((i, ()))
-}
-
-fn colonspace(input: &str) -> IResult<&str, () > {
-    let (i,_) = tag(":")(input)?;
-    let (i, _) = complete::space1(i)?;
-    Ok((i, ()))
-}
-
-fn cardspace(input: &str) -> IResult<&str, () > {
-    let (input, _) = tag("Card")(input)?;
-    let (input, _) = complete::space1(input)?;
-    Ok((input, ()))
+fn parse_numbers(input: &str) -> IResult<&str, (HashSet<u8>, HashSet<u8>)> {
+    separated_pair(
+        parse_num_list,
+        tuple((tag("|"), complete::space1)),
+        parse_num_list,
+    )(input)
 }
 
 fn parse_card(input: &str) -> IResult<&str, Card> {
-    let (input, (id, (my_numbers, game_numbers))) = separated_pair(preceded(cardspace, complete::u8), colonspace, parse_numbers )(input)?;
+    let (input, (id, (my_numbers, game_numbers))) = separated_pair(
+        preceded(tuple((tag("Card"), complete::space1)), complete::u8),
+        tuple((tag(":"), complete::space1)),
+        parse_numbers,
+    )(input)?;
 
-    Ok((input, Card{_id:id, my_numbers, game_numbers}))
+    Ok((
+        input,
+        Card {
+            _id: id,
+            game_numbers,
+            my_numbers,
+        },
+    ))
 }
 
-fn parse_input(input:&str) -> IResult<&str, Vec<Card>> {
-    separated_list1(complete::newline, parse_card)(input)
+fn parse_input(input: &str) -> IResult<&str, Vec<Card>> {
+    separated_list1(complete::line_ending, parse_card)(input)
 }
 
 #[cfg(test)]
