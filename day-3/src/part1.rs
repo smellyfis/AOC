@@ -77,11 +77,11 @@ fn parse_input(input: &str) -> (Vec<SerialNumber>, BTreeMap<(usize, usize), char
         }
         //need to account for new line numbers
         if prev_char.is_some() {
-            numbers.push( SerialNumber {
-                        no: cur_no,
-                        start: (cur_no_row_start, line_no),
-                        end: (line.len() - 1, line_no),
-                    });
+            numbers.push(SerialNumber {
+                no: cur_no,
+                start: (cur_no_row_start, line_no),
+                end: (line.len() - 1, line_no),
+            });
         }
     }
     (numbers, symbols)
@@ -102,7 +102,7 @@ mod test {
 ...$.*....
 .664.598..";
 
-    const INPUT2: &str="12.......*..
+    const INPUT2: &str = "12.......*..
 +.........34
 .......-12..
 ..78........
