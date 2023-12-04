@@ -1,9 +1,18 @@
+#![warn(clippy::all, clippy::pedantic)]
+
+/// Day 1 Part 2 of AOC2023
+///
+/// # Arguments
+/// - puzzle input
+///
+/// # Panics
+/// this panics if there is no numbers in a line
 pub fn part2(input: &str) -> String {
     let values = input.lines().map(parse_line).collect::<Vec<Vec<u32>>>();
     println!("{values:?}");
     values
         .iter()
-        .map(|v| v.first().unwrap() * 10 + v.last().unwrap())
+        .map(|v| v.first().expect("There is always at least one number") * 10 + v.last().expect("there is always at least one number"))
         .sum::<u32>()
         .to_string()
 }
@@ -33,7 +42,7 @@ fn parse_line(line: &str) -> Vec<u32> {
             } else if reduced_line.starts_with("zero") {
                 Some(0)
             } else {
-                reduced_line.chars().next().unwrap().to_digit(10)
+                reduced_line.chars().next().expect("there is alwayss a character").to_digit(10)
             };
 
             result

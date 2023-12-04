@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use nom::{
     bytes::complete::tag,
     character::complete::{self, newline},
@@ -37,6 +39,13 @@ impl Game {
     }
 }
 
+/// part2 of day 2 of AOC 2023
+///
+/// # Arguments
+/// - input the puszzle input
+///
+/// # Panics
+/// panics whenever the input isn't parsable
 pub fn part2(input: &str) -> String {
     let (_, games) = process_input(input).expect("there should be input");
     games.iter().map(Game::to_power).sum::<u64>().to_string()

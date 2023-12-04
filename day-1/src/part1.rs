@@ -1,9 +1,21 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use nom::{
     self,
     character::complete::{alphanumeric1, newline},
     multi::separated_list1,
 };
 
+/// Day-1 part 1 of AC2023
+///
+/// # Arguments
+/// - input the input for day1 as a string
+///
+/// # Panics
+/// This panics whenever a number isn't present in a line of the input
+///
+/// # Errors
+/// errors when can't parse the input
 pub fn part1(input: &str) -> nom::IResult<&str, String> {
     let (_, values) = parse_input(input)?;
     println!("{values:?}");
@@ -11,7 +23,7 @@ pub fn part1(input: &str) -> nom::IResult<&str, String> {
         "",
         values
             .iter()
-            .map(|v| v.first().unwrap() * 10 + v.last().unwrap())
+            .map(|v| v.first().expect("always at least one number") * 10 + v.last().expect("always atleast one number"))
             .sum::<u32>()
             .to_string(),
     ))

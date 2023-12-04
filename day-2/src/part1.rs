@@ -1,3 +1,5 @@
+#![warn(clippy::all, clippy::pedantic)]
+
 use log::debug;
 use nom::{
     bytes::complete::tag,
@@ -41,6 +43,13 @@ impl Game {
     }
 }
 
+/// part2 of day 2 of AOC 2023
+///
+/// # Arguments
+/// - input the puszzle input
+///
+/// # Panics
+/// panics whenever the input isn't parsable
 pub fn part1(input: &str) -> String {
     let (_, games) = process_input(input).expect("there should be input");
     debug!("{games:?}");
