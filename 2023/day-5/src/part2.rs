@@ -1,6 +1,6 @@
 #![warn(clippy::all, clippy::pedantic)]
 
-pub fn part1(_input: &str) -> String {
+#[must_use] pub fn part2(_input: &str) -> String {
     "Not Finished".to_string()
 }
 
@@ -11,8 +11,8 @@ mod test {
     const INPUT: &str = "";
 
     #[test]
-    fn part1_works() {
-        let result = part1(INPUT);
+    fn part2_works() {
+        let result = part2(INPUT);
         assert_eq!(result, "Not Finished".to_string());
     }
 }
