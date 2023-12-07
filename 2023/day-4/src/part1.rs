@@ -90,6 +90,21 @@ fn parse_input(input: &str) -> IResult<&str, Vec<Card>> {
 #[cfg(test)]
 mod test {
     use super::*;
+    use rstest::rstest;
+
+    #[rstest]
+    #[case("Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53", Some(8))]
+    #[case("Card 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19", Some(2))]
+    #[case("Card 3:  1 21 53 59 44 | 69 82 63 72 16 21 14  1", Some(2))]
+    #[case("Card 4: 41 92 73 84 69 | 59 84 76 51 58  5 54 83", Some(1))]
+    #[case("Card 5: 87 83 26 28 32 | 88 30 70 12 93 22 82 36", None)]
+    #[case("Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11", None)]
+    fn line_test(#[case] line: &str, #[case] expected: Option<usize>) {
+        let (input, card) = parse_card(line).expect("card should be parsed");
+        assert_eq!(input, "");
+        assert_eq!(card.get_score(), expected);
+
+    }
 
     const INPUT: &str = "Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53
 Card 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19
