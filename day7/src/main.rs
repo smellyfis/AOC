@@ -119,6 +119,14 @@ fn recurse_part1(collector: &mut Vec<usize>, cwd: &MyDir) -> usize {
     cwd_size
 }
 
+fn process_part1(input: &str) -> String {
+    todo!()
+}
+
+fn process_part2(input: &str) -> String {
+    todo!()
+}
+
 fn main() -> std::io::Result<()> {
     //Read in file
     let file = File::open("input")?;
@@ -171,4 +179,42 @@ fn main() -> std::io::Result<()> {
     let part2 = part1.iter().filter(|x| **x >= needed_clear_space).min();
     println!("Part 2: {}", part2.unwrap());
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    const INPUT: &str = "$ cd /
+$ ls
+dir a
+14848514 b.txt
+8504156 c.dat
+dir d
+$ cd a
+$ ls
+dir e
+29116 f
+2557 g
+62596 h.lst
+$ cd e
+$ ls
+584 i
+$ cd ..
+$ cd ..
+$ cd d
+$ ls
+4060174 j
+8033020 d.log
+5626152 d.ext
+7214296 k";
+    #[test]
+    fn part1_works() {
+        assert_eq!(process_part1(INPUT), "95437");
+    }
+
+    #[test]
+    fn part2_works() {
+        assert_eq!(process_part2(INPUT), "24933642");
+    }
 }
