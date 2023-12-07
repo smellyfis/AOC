@@ -76,6 +76,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "day-6"
+version = "2023.0.0"
+dependencies = [
+ "itertools",
+ "nom",
+]
+
+[[package]]
+name = "day-7"
+version = "2023.0.0"
+dependencies = [
+ "itertools",
+ "nom",
+]
+
+[[package]]
 name = "derive-getters"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
