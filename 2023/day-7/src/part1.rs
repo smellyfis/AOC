@@ -70,13 +70,13 @@ impl From<&Card> for &u32 {
 
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
 enum HandType {
-    FiveOfAKind,
-    FourOfAKind,
-    FullHouse,
-    ThreeOfAKind,
-    TwoPair,
-    OnePair,
     HighCard,
+    OnePair,
+    TwoPair,
+    ThreeOfAKind,
+    FullHouse,
+    FourOfAKind,
+    FiveOfAKind,
 }
 
 impl From<&Hand> for HandType {
@@ -105,16 +105,21 @@ impl From<&Hand> for HandType {
     }
 }
 
-#[derive(Debug, Eq, PartialEq, Ord)]
+#[derive(Debug, Eq, PartialEq)]
 struct Hand {
     pub cards: [Card; 5],
     pub bet: u32,
 }
 impl PartialOrd for Hand {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+impl Ord for Hand {
+    fn cmp(&self, other: &Self) -> Ordering {
         let a = HandType::from(self);
         let b = HandType::from(other);
-        let c = b.cmp(&a);
+        let c = a.cmp(&b);
         match c {
             Ordering::Equal => self
                 .cards
@@ -122,23 +127,22 @@ impl PartialOrd for Hand {
                 .interleave(other.cards.iter())
                 .tuples::<(_, _)>()
                 .find_map(|(a, b)| {
-                    if b.cmp(a).is_ne() {
-                        Some(a.cmp(b))
-                    } else {
-                        None
+                    match a.cmp(b) {
+                        Ordering::Equal => None,
+                        x => Some(x)
                     }
-                }),
-            x => Some(x),
+                }).unwrap_or(Ordering::Equal),
+            x => x,
         }
     }
 }
 
 #[must_use]
-pub fn part1(_input: &str) -> String {
-    let (_, mut hands) = parse_input(_input).expect("always valid input");
+pub fn part1(input: &str) -> String {
+    let (_, mut hands) = parse_input(input).expect("always valid input");
     hands.sort();
 
-    dbg!(hands)
+    hands
         .iter()
         .enumerate()
         .map(|(i, hand)| (i + 1) * hand.bet as usize)
@@ -178,4 +182,3 @@ QQQJA 483";
         assert_eq!(result, "6440".to_string());
     }
 }
-

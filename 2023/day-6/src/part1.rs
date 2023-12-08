@@ -44,7 +44,7 @@ fn parse_input(input: &str) -> IResult<&str, Vec<(u64, u64)>> {
         input,
         time.iter()
             .interleave(distance.iter())
-            .map(|x| *x)
+            .copied()
             .tuples()
             .collect(),
     ))

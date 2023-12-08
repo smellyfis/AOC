@@ -36,13 +36,13 @@ fn parse_input(input: &str) -> IResult<&str, (u64, u64)> {
     )(input)?;
     let distance = distance
         .iter()
-        .map(|x| x.to_string())
+        .map(ToString::to_string)
         .join("")
         .parse::<u64>()
         .expect("is a number");
     let time = time
         .iter()
-        .map(|x| x.to_string())
+        .map(ToString::to_string)
         .join("")
         .parse::<u64>()
         .expect("is a number");
