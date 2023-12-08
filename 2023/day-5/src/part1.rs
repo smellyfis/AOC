@@ -74,6 +74,13 @@ impl ItemMap {
             .expect("always")
     }
 }
+/// part1 of day 5 of AOC 2023
+///
+/// # Arguments
+/// - input the puszzle input
+///
+/// # Panics
+/// panics whenever the input isn't parsable
 
 #[must_use]
 pub fn part1(input: &str) -> String {

@@ -138,6 +138,13 @@ impl ItemMap {
     }
 }
 
+/// part2 of day 5 of AOC 2023
+///
+/// # Arguments
+/// - input the puszzle input
+///
+/// # Panics
+/// panics whenever the input isn't parsable
 #[must_use]
 pub fn part2(input: &str) -> String {
     let (_input, (mut to_process, maps)) = parse_input(input).expect("aoc always has input");

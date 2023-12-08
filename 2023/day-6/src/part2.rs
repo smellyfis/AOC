@@ -9,6 +9,13 @@ use nom::{
     IResult,
 };
 
+/// part2 of day 2 of AOC 2023
+///
+/// # Arguments
+/// - input the puszzle input
+///
+/// # Panics
+/// panics whenever the input isn't parsable
 #[must_use]
 pub fn part2(input: &str) -> String {
     let (_, race) = parse_input(input).expect("input expected");
