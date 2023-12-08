@@ -6,11 +6,12 @@ use std::{
     collections::BTreeMap,
     str::FromStr,
 };
+use std::fmt;
 
 #[derive(Debug)]
 struct Day1Part2Error;
 
-#[derive(Debug, Ord, Eq, PartialEq, PartialOrd)]
+#[derive(Debug, Ord, Eq, PartialEq, PartialOrd, Copy, Clone)]
 enum Card {
     Joker = 1,
     Two,
@@ -67,6 +68,26 @@ impl From<&Card> for &u32 {
         }
     }
 }
+impl fmt::Display for Card {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> fmt::Result {
+        let c = match self  {
+            Card::Joker => 'J',
+            Card::Two =>  '2',
+            Card::Three =>  '3',
+            Card::Four =>  '4',
+            Card::Five =>  '5',
+            Card::Six =>  '6',
+            Card::Seven =>  '7',
+            Card::Eight =>  '8',
+            Card::Nine =>  '9',
+            Card::Ten =>  'T',
+            Card::Queen =>  'Q',
+            Card::King =>  'K',
+            Card::Ace =>  'A',
+        };
+        write!(f, "{c}")
+    }
+}
 
 #[derive(Debug, Eq, PartialEq, Ord, PartialOrd)]
 enum HandType {
@@ -95,19 +116,20 @@ impl From<&Hand> for HandType {
             .sorted_by(|a, b| b.1.cmp(a.1))
             .collect::<Vec<_>>()[..]
         {
-            [(_, x),..] if jokers + x == 5 => Self::FiveOfAKind,
+            [(_, x), ..] if jokers + x == 5 => Self::FiveOfAKind,
+            [] if jokers  == 5 => Self::FiveOfAKind,
             [(_, x), ..] if jokers + x == 4 => Self::FourOfAKind,
             [(_, 3), (_, 2)] => Self::FullHouse,
             [(_, 2), (_, 2)] if jokers == 1 => Self::FullHouse,
             [(_, x), ..] if jokers + x == 3 => Self::ThreeOfAKind,
             [(_, 2), (_, 2), ..] => Self::TwoPair,
             [(_, x), ..] if jokers + x == 2 => Self::OnePair,
-            _ => Self::HighCard, 
+            _ => Self::HighCard,
         }
     }
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
 struct Hand {
     pub cards: [Card; 5],
     pub bet: u32,
@@ -128,17 +150,23 @@ impl Ord for Hand {
                 .iter()
                 .interleave(other.cards.iter())
                 .tuples::<(_, _)>()
-                .find_map(|(a, b)| {
-                    match a.cmp(b) {
-                        Ordering::Equal => None,
-                        x => Some(x)
-                    }
-                }).unwrap_or(Ordering::Equal),
+                .find_map(|(a, b)| match a.cmp(b) {
+                    Ordering::Equal => None,
+                    x => Some(x),
+                })
+                .unwrap_or(Ordering::Equal),
             x => x,
         }
     }
 }
 
+/// part2 of day 7 of AOC 2023
+///
+/// # Arguments
+/// - input the puszzle input
+///
+/// # Panics
+/// panics whenever the input isn't parsable
 #[must_use]
 pub fn part2(input: &str) -> String {
     let (_, mut hands) = parse_input(input).expect("always valid input");

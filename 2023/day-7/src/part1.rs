@@ -126,17 +126,23 @@ impl Ord for Hand {
                 .iter()
                 .interleave(other.cards.iter())
                 .tuples::<(_, _)>()
-                .find_map(|(a, b)| {
-                    match a.cmp(b) {
-                        Ordering::Equal => None,
-                        x => Some(x)
-                    }
-                }).unwrap_or(Ordering::Equal),
+                .find_map(|(a, b)| match a.cmp(b) {
+                    Ordering::Equal => None,
+                    x => Some(x),
+                })
+                .unwrap_or(Ordering::Equal),
             x => x,
         }
     }
 }
 
+/// part1 of day 7 of AOC 2023
+///
+/// # Arguments
+/// - input the puszzle input
+///
+/// # Panics
+/// panics whenever the input isn't parsable
 #[must_use]
 pub fn part1(input: &str) -> String {
     let (_, mut hands) = parse_input(input).expect("always valid input");
