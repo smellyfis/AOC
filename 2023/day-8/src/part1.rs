@@ -31,7 +31,7 @@ impl Branches {
     }
 }
 
-/// day 4 part 1 of aoc 2023
+/// day 8 part 1 of aoc 2023
 ///
 /// # Arguments
 /// - input the input for today's puzzle
