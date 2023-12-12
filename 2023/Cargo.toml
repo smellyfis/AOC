@@ -18,6 +18,7 @@ nom_locate= "4.2.0"
 rstest = "0.18.2"
 rstest_reuse = "0.6.0"
 dhat = "0.3.2"
+glam = "0.24.2"
 
 
 [profile.dhat]

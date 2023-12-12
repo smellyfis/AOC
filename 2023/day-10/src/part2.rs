@@ -165,7 +165,6 @@ pub fn part2(input: &str) -> String {
                 };
 
     let mut pieces = HashMap::new();
-    //TODO might need to get the actual start type
     pieces.insert(start_node.position, start_node_true_type);
 
     successors(
