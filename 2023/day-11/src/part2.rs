@@ -32,7 +32,7 @@ pub fn part2(input: &str, modr: i64) -> String {
             .filter_map(|y| points.get(&(x, y).into()))
             .collect::<Vec<_>>();
         if column.is_empty() {
-            modifier += modr-1;
+            modifier += modr - 1;
         }
         for point in column {
             adjusted_points.insert(*point + I64Vec2::new(modifier, 0));
@@ -47,7 +47,7 @@ pub fn part2(input: &str, modr: i64) -> String {
             .filter_map(|x| adjusted_points.get(&(x, y).into()))
             .collect::<Vec<_>>();
         if row.is_empty() {
-            modifier += modr-1;
+            modifier += modr - 1;
         }
         for point in row {
             points.insert(*point + I64Vec2::new(0, modifier));
@@ -57,8 +57,8 @@ pub fn part2(input: &str, modr: i64) -> String {
     (points
         .iter()
         .cartesian_product(points.iter())
-        .filter_map(|(a, b)| (*a != *b).then_some(*a-*b))
-        .map(|a| u64::try_from(a.x.abs()+a.y.abs()).unwrap())
+        .filter_map(|(a, b)| (*a != *b).then_some(*a - *b))
+        .map(|a| u64::try_from(a.x.abs() + a.y.abs()).unwrap())
         .sum::<u64>()
         / 2)
     .to_string()
@@ -100,4 +100,3 @@ mod test {
         assert_eq!(result, "1030".to_string());
     }
 }
-
