@@ -1,6 +1,6 @@
 #![warn(clippy::all, clippy::pedantic)]
 
-use std::{collections::HashMap, iter::successors, fmt::Display};
+use std::{collections::HashMap, fmt::Display, iter::successors};
 
 use glam::IVec2;
 use itertools::Itertools;
@@ -84,18 +84,22 @@ impl PipeType {
 }
 impl Display for PipeType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", match self {
-            Self::Start => "S",
-            Self::Horizontal => "-",
-            Self::Vertical => "|",
-            Self::DownRight => "F",
-            Self::DownLeft => "7",
-            Self::UpRight => "L",
-            Self::UpLeft => "J",
-            Self::None => ".",
-            Self::Outer => "O",
-            Self::Inner => "I",
-        })
+        write!(
+            f,
+            "{}",
+            match self {
+                Self::Start => "S",
+                Self::Horizontal => "-",
+                Self::Vertical => "|",
+                Self::DownRight => "F",
+                Self::DownLeft => "7",
+                Self::UpRight => "L",
+                Self::UpLeft => "J",
+                Self::None => ".",
+                Self::Outer => "O",
+                Self::Inner => "I",
+            }
+        )
     }
 }
 
@@ -145,24 +149,29 @@ pub fn part2(input: &str) -> String {
         .values()
         .find(|x| x.pipe_type == PipeType::Start)
         .expect("has a start");
-    let start_node_true_type = match &start_node.get_adjacent()
+    let start_node_true_type = match &start_node
+        .get_adjacent()
+        .iter()
+        .filter_map(|(x, from)| grid.get(x).map(|y| (y, *from)))
+        .filter_map(|(x, from)| {
+            x.get_adjacent()
                 .iter()
-                .filter_map(|(x, from)| grid.get(x).map(|y| (y, *from)))
-                .filter_map(|(x, from)| {
-                    x.get_adjacent()
-                        .iter()
-                        .map(|(y, _)| y)
-                        .contains(&start_node.position).then_some(from)
-                })
-                .collect::<Vec<_>>()[..]{
-                    [PipeFrom::Up, PipeFrom::Left] | [PipeFrom::Left, PipeFrom::Up] => PipeType::DownRight,
-                    [PipeFrom::Up, PipeFrom::Right] | [PipeFrom::Right, PipeFrom::Up] => PipeType::DownLeft,
-                    [PipeFrom::Down, PipeFrom::Left] | [PipeFrom::Left, PipeFrom::Down] => PipeType::UpRight,
-                    [PipeFrom::Down, PipeFrom::Right] | [PipeFrom::Right, PipeFrom::Down] => PipeType::UpLeft,
-                    [PipeFrom::Up, PipeFrom::Down] | [PipeFrom::Down, PipeFrom::Up] => PipeType::Vertical,
-                    [PipeFrom::Right, PipeFrom::Left] | [PipeFrom::Left, PipeFrom::Right] => PipeType::Horizontal,
-                    _ => PipeType::Start,
-                };
+                .map(|(y, _)| y)
+                .contains(&start_node.position)
+                .then_some(from)
+        })
+        .collect::<Vec<_>>()[..]
+    {
+        [PipeFrom::Up, PipeFrom::Left] | [PipeFrom::Left, PipeFrom::Up] => PipeType::DownRight,
+        [PipeFrom::Up, PipeFrom::Right] | [PipeFrom::Right, PipeFrom::Up] => PipeType::DownLeft,
+        [PipeFrom::Down, PipeFrom::Left] | [PipeFrom::Left, PipeFrom::Down] => PipeType::UpRight,
+        [PipeFrom::Down, PipeFrom::Right] | [PipeFrom::Right, PipeFrom::Down] => PipeType::UpLeft,
+        [PipeFrom::Up, PipeFrom::Down] | [PipeFrom::Down, PipeFrom::Up] => PipeType::Vertical,
+        [PipeFrom::Right, PipeFrom::Left] | [PipeFrom::Left, PipeFrom::Right] => {
+            PipeType::Horizontal
+        }
+        _ => PipeType::Start,
+    };
 
     let mut pieces = HashMap::new();
     pieces.insert(start_node.position, start_node_true_type);
@@ -221,24 +230,23 @@ pub fn part2(input: &str) -> String {
         print!("\n");
     });
     */
-    (corners.0.1..=corners.1.1)
-        .for_each(|y| {
-            let mut status = false;
-            (corners.0.0..=corners.1 .0)
-                .map(|x| IVec2::new(x, y))
-                .for_each(|pos| {
-                    if let Some(piece) = pieces.get(&pos) {
-                        status = match piece {
-                            PipeType::Vertical | PipeType::DownRight | PipeType::DownLeft => !status,
-                            _ => status,
-                        };
-                    } else if status {
-                        pieces.insert(pos, PipeType::Inner);
-                    } else {
-                        pieces.insert(pos, PipeType::Outer);
-                    }
-                });
-        });
+    (corners.0 .1..=corners.1 .1).for_each(|y| {
+        let mut status = false;
+        (corners.0 .0..=corners.1 .0)
+            .map(|x| IVec2::new(x, y))
+            .for_each(|pos| {
+                if let Some(piece) = pieces.get(&pos) {
+                    status = match piece {
+                        PipeType::Vertical | PipeType::DownRight | PipeType::DownLeft => !status,
+                        _ => status,
+                    };
+                } else if status {
+                    pieces.insert(pos, PipeType::Inner);
+                } else {
+                    pieces.insert(pos, PipeType::Outer);
+                }
+            });
+    });
     /* Debug
     println!();
     (corners.0 .1..=corners.1 .1).for_each(|y| {
@@ -365,4 +373,3 @@ L7JLJL-JLJLJL--JLJ.L",
         assert_eq!(result, expected);
     }
 }
-

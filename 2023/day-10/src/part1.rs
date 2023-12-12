@@ -8,9 +8,10 @@ use nom::{
     branch::alt,
     bytes::complete::tag,
     character::complete,
+    combinator::eof,
     multi::{fold_many1, many1},
     sequence::terminated,
-    IResult, Parser, combinator::eof,
+    IResult, Parser,
 };
 use nom_locate::LocatedSpan;
 
@@ -26,10 +27,10 @@ enum PipeFrom {
 }
 impl PipeFrom {
     fn from_ivecs(a: IVec2, b: IVec2) -> Option<Self> {
-        match (a-b).into() {
+        match (a - b).into() {
             (0, 1) => Some(Self::Down),
             (0, -1) => Some(Self::Up),
-            (1, 0)  => Some(Self::Right),
+            (1, 0) => Some(Self::Right),
             (-1, 0) => Some(Self::Left),
             _ => None,
             //value => unimplemented!("this can't be {a:?} - {b:?} = {value:?}"),
@@ -37,10 +38,10 @@ impl PipeFrom {
     }
     fn to_ivec(self) -> IVec2 {
         match self {
-            PipeFrom::Up => (0,-1).into(),
-            PipeFrom::Down => (0,1).into(),
-            PipeFrom::Left => (-1,0).into(),
-            PipeFrom::Right => (1,0).into(),
+            PipeFrom::Up => (0, -1).into(),
+            PipeFrom::Down => (0, 1).into(),
+            PipeFrom::Left => (-1, 0).into(),
+            PipeFrom::Right => (1, 0).into(),
         }
     }
 }
@@ -87,12 +88,12 @@ struct Pipe {
 }
 
 impl Pipe {
-    fn get_adjacent(&self ) -> Vec<(IVec2, PipeFrom)> {
+    fn get_adjacent(&self) -> Vec<(IVec2, PipeFrom)> {
         self.pipe_type
             .get_adjacents()
             .into_iter()
             .map(|x| x + self.position)
-            .filter_map(|x| PipeFrom::from_ivecs(self.position , x).map(|y| (x,y) ))
+            .filter_map(|x| PipeFrom::from_ivecs(self.position, x).map(|y| (x, y)))
             .collect()
     }
     fn next(&self, from: PipeFrom) -> IVec2 {
@@ -101,10 +102,12 @@ impl Pipe {
         match (from, self.pipe_type) {
             (Up, Vertical) | (Left, DownLeft) | (Right, DownRight) => Down,
             (Up, UpLeft) | (Down, DownLeft) | (Right, Horizontal) => Left,
-            (Up, UpRight) | (Down, DownRight) | (Left, Horizontal)  => Right,
+            (Up, UpRight) | (Down, DownRight) | (Left, Horizontal) => Right,
             (Down, Vertical) | (Left, UpLeft) | (Right, UpRight) => Up,
             _ => unimplemented!("no"),
-        }.to_ivec() + self.position
+        }
+        .to_ivec()
+            + self.position
     }
 }
 
@@ -130,23 +133,31 @@ pub fn part1(input: &str) -> String {
             start_node
                 .get_adjacent()
                 .iter()
-                .filter_map(|(x, from)| grid.get(x).map(|y|(y,*from)))
-                .filter(|(x, _)| x.get_adjacent().iter().map(|(y,_)|y).contains(&start_node.position))
-                .collect::<Vec<_>>()
+                .filter_map(|(x, from)| grid.get(x).map(|y| (y, *from)))
+                .filter(|(x, _)| {
+                    x.get_adjacent()
+                        .iter()
+                        .map(|(y, _)| y)
+                        .contains(&start_node.position)
+                })
+                .collect::<Vec<_>>(),
         ),
         |front_nodes| {
-            Some(front_nodes
-                .iter()
-                .filter_map(|(pipe, from)| {
-                    grid.get(&pipe.next(*from)).map(|x|(x,PipeFrom::from_ivecs(pipe.position,x.position ).unwrap()))
-                })
-                .collect::<Vec<_>>())
+            Some(
+                front_nodes
+                    .iter()
+                    .filter_map(|(pipe, from)| {
+                        grid.get(&pipe.next(*from))
+                            .map(|x| (x, PipeFrom::from_ivecs(pipe.position, x.position).unwrap()))
+                    })
+                    .collect::<Vec<_>>(),
+            )
         },
     )
-        .filter(|x| !x.is_empty())
-        .position(|a| a[0].0 == a[1].0)
-        .unwrap()
-        +1)
+    .filter(|x| !x.is_empty())
+    .position(|a| a[0].0 == a[1].0)
+    .unwrap()
+        + 1)
     .to_string()
     //todo!()
 }
@@ -254,4 +265,3 @@ LJ.LJ",
         assert_eq!(result, expected);
     }
 }
-
