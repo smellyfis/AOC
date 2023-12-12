@@ -199,18 +199,18 @@ pub fn part2(input: &str) -> String {
     )
     .filter(|x| !x.is_empty())
     .for_each(|x| {
-        x.iter().for_each(|(pipe, _)| {
+        for (pipe, _) in &x {
             pieces.insert(pipe.position, pipe.pipe_type);
-        });
+        }
     });
     let corners = pieces.keys().fold(
         ((i32::MAX, i32::MAX), (i32::MIN, i32::MIN)),
-        |((min_x, min_y), (max_x, max_y)), pos| {
-            let minx = min_x.min(pos.x);
+        |((minimum_x, min_y), (maximal_x, max_y)), pos| {
+            let minimum_x = minimum_x.min(pos.x);
             let miny = min_y.min(pos.y);
-            let maxx = max_x.max(pos.x);
+            let maximal_x = maximal_x.max(pos.x);
             let maxy = max_y.max(pos.y);
-            ((minx, miny), (maxx, maxy))
+            ((minimum_x, miny), (maximal_x, maxy))
         },
     );
     /* Debug
