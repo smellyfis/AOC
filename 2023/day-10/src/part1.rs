@@ -96,8 +96,8 @@ impl Pipe {
             .collect()
     }
     fn next(&self, from: PipeFrom) -> IVec2 {
-        use PipeFrom::*;
-        use PipeType::*;
+        use PipeFrom::{Down, Left, Right, Up};
+        use PipeType::{DownLeft, DownRight, Horizontal, UpLeft, UpRight, Vertical};
         match (from, self.pipe_type) {
             (Up, Vertical) | (Left, DownLeft) | (Right, DownRight) => Down,
             (Up, UpLeft) | (Down, DownLeft) | (Right, Horizontal) => Left,
