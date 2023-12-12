@@ -9,4 +9,4 @@ repository.workspace = true
 
 [dependencies]
 nom = { workspace = true }
-itertools = {workspace = true ]
+itertools = {workspace = true }
