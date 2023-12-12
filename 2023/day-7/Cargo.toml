@@ -12,3 +12,7 @@ nom.workspace = true
 itertools.workspace = true
 num = "0.4.1"
 num-traits = "0.2.17"
+dhat = { workspace = true }
+
+[features]
+dhat-heap = []
