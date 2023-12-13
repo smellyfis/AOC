@@ -10,3 +10,6 @@ repository.workspace = true
 [dependencies]
 nom = { workspace = true }
 itertools = {workspace = true }
+
+[dev-dependencies]
+rstest = {workspace = true}
