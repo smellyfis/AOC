@@ -122,6 +122,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "day-13"
+version = "2023.0.0"
+dependencies = [
+ "glam",
+ "itertools",
+ "nom",
+ "nom_locate",
+ "rstest",
+]
+
+[[package]]
 name = "day-2"
 version = "2023.0.0"
 dependencies = [
