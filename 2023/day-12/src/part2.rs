@@ -1,15 +1,15 @@
 #![warn(clippy::all, clippy::pedantic)]
 
-use std::{iter::repeat, collections::HashMap};
+use std::{collections::HashMap, iter::repeat};
 
 use itertools::Itertools;
 use nom::{
-    bytes::complete::{tag, is_a},
+    bytes::complete::{is_a, tag},
     character::complete,
     multi::separated_list1,
     sequence::separated_pair,
-    IResult};
-
+    IResult,
+};
 
 struct Row {
     springs: String,
@@ -19,20 +19,26 @@ struct Row {
 impl Row {
     fn process(&self) -> usize {
         let mut cache = HashMap::new();
-        self.dynamic_search(&mut cache, (0,0,0))
+        self.dynamic_search(&mut cache, (0, 0, 0))
     }
 
-    fn dynamic_search(&self, cache: &mut HashMap<(usize,usize,u32),usize>, search: (usize, usize, u32)) -> usize {
+    fn dynamic_search(
+        &self,
+        cache: &mut HashMap<(usize, usize, u32), usize>,
+        search: (usize, usize, u32),
+    ) -> usize {
         let (data_index, group_index, group_size) = search;
         //are we at the end of the input
-        if data_index >= self.springs.len(){
+        if data_index >= self.springs.len() {
             // when group_index is greater we are here then golden
             if group_index >= self.broken_spans.len() {
                 return 1;
             }
 
             //we haven't satisfied groups but the end is failing
-            if group_index == self.broken_spans.len() - 1 && self.broken_spans[group_index] == group_size {
+            if group_index == self.broken_spans.len() - 1
+                && self.broken_spans[group_index] == group_size
+            {
                 return 1;
             }
             return 0;
@@ -45,24 +51,28 @@ impl Row {
                 }
 
                 //we failed to match the group
-                if group_index >= self.broken_spans.len() || self.broken_spans[group_index] != group_size{
+                if group_index >= self.broken_spans.len()
+                    || self.broken_spans[group_index] != group_size
+                {
                     return 0;
                 }
 
                 //completed a group keep going
-                self.dynamic_search(cache,(data_index+1, group_index +1, 0))
-            },
+                self.dynamic_search(cache, (data_index + 1, group_index + 1, 0))
+            }
             b'#' => {
                 //too many for our group
-                if group_index >= self.broken_spans.len() || group_size + 1 > self.broken_spans[group_index] {
+                if group_index >= self.broken_spans.len()
+                    || group_size + 1 > self.broken_spans[group_index]
+                {
                     return 0;
                 }
 
                 //haven't completed group yet keep looking
-                self.dynamic_search(cache, (data_index+1, group_index, group_size + 1))
-            },
+                self.dynamic_search(cache, (data_index + 1, group_index, group_size + 1))
+            }
             b'?' => {
-                if let Some(res) = cache.get(&(data_index,group_index,group_size)).copied() {
+                if let Some(res) = cache.get(&(data_index, group_index, group_size)).copied() {
                     return res;
                 }
 
@@ -70,22 +80,27 @@ impl Row {
 
                 //pretend to be a undamaged, if in a working group
                 if 0 == group_size {
-                    perms += self.dynamic_search(cache, (data_index +1, group_index, 0));
+                    perms += self.dynamic_search(cache, (data_index + 1, group_index, 0));
                 }
 
                 //pretend to be damaged
-                if group_index < self.broken_spans.len() && group_size < self.broken_spans[group_index] {
-                    perms += self.dynamic_search(cache, (data_index + 1, group_index, group_size +1));
+                if group_index < self.broken_spans.len()
+                    && group_size < self.broken_spans[group_index]
+                {
+                    perms +=
+                        self.dynamic_search(cache, (data_index + 1, group_index, group_size + 1));
                 }
 
                 //pretend to be undamage, thus ending a damaged group
-                if group_index < self.broken_spans.len() && group_size == self.broken_spans[group_index] {
-                    perms += self.dynamic_search(cache, (data_index +1, group_index+1, 0));
+                if group_index < self.broken_spans.len()
+                    && group_size == self.broken_spans[group_index]
+                {
+                    perms += self.dynamic_search(cache, (data_index + 1, group_index + 1, 0));
                 }
 
-                cache.insert((data_index, group_index, group_size),perms);
+                cache.insert((data_index, group_index, group_size), perms);
                 perms
-            },
+            }
             _ => unreachable!(),
         }
     }
@@ -168,4 +183,3 @@ mod test {
         assert_eq!(result, "525152".to_string());
     }
 }
-

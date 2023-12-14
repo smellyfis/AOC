@@ -46,25 +46,24 @@ impl Row {
                     .all(|(a, b)| (a == b || *a == SpringStatus::Unknown))
             })
             .filter(|x| {
-                let (mut array, last, current_run) =x.iter()
-                    .fold(
-                        (Vec::new(), SpringStatus::Working, 0_u32),
-                        |(mut array, _last, mut current_run), x| {
-                            if *x == SpringStatus::Failing {
-                                current_run += 1;
-                            } else {
-                                if current_run > 0 {
-                                    array.push(current_run);
-                                }
-                                current_run = 0;
+                let (mut array, last, current_run) = x.iter().fold(
+                    (Vec::new(), SpringStatus::Working, 0_u32),
+                    |(mut array, _last, mut current_run), x| {
+                        if *x == SpringStatus::Failing {
+                            current_run += 1;
+                        } else {
+                            if current_run > 0 {
+                                array.push(current_run);
                             }
-                            (array, *x, current_run)
-                        },
-                    );
+                            current_run = 0;
+                        }
+                        (array, *x, current_run)
+                    },
+                );
                 if last == SpringStatus::Failing {
                     array.push(current_run);
                 }
-                    array
+                array
                     .iter()
                     .zip(self.broken_spans.iter())
                     .all(|(a, b)| a == b)
@@ -152,4 +151,3 @@ mod test {
         assert_eq!(result, "21".to_string());
     }
 }
-
