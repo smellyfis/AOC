@@ -4,10 +4,7 @@ use std::collections::HashSet;
 
 use glam::UVec2;
 use nom::{
-    bytes::complete::is_a,
-    character::complete,
-    multi::separated_list1,
-    IResult, sequence::tuple,
+    bytes::complete::is_a, character::complete, multi::separated_list1, sequence::tuple, IResult,
 };
 
 struct Drawing {
@@ -18,40 +15,40 @@ struct Drawing {
 impl Drawing {
     fn process(&self) -> u32 {
         let (max_col, max_row) = self.size.into();
-        let col_score = (1..max_col )
-            .filter_map(|reflect_col| {
+        let col_score = (1..max_col)
+            .filter(|reflect_col| {
+                let reflect_col = * reflect_col;
                 let span = reflect_col.min(max_col - reflect_col);
-                (self.mounds
+                self
+                    .mounds
                     .iter()
                     .filter(|mound| mound.x + span >= reflect_col && mound.x < reflect_col)
-                    .map(|mound| (2* reflect_col - mound.x  - 1, mound.y).into())
+                    .map(|mound| (2 * reflect_col - mound.x - 1, mound.y).into())
                     .all(|mound_reflect| self.mounds.get(&mound_reflect).is_some())
-                    &&
-                self.mounds
-                    .iter()
-                    .filter(|mound|mound.x < reflect_col + span && mound.x >= reflect_col)
-                    .map(|mound| ( 2*reflect_col - mound.x - 1,mound.y).into())
-                    .all(|mound_reflect| self.mounds.get(&mound_reflect).is_some())
-                )
-                    .then_some(reflect_col)
+                    && self
+                        .mounds
+                        .iter()
+                        .filter(|mound| mound.x < reflect_col + span && mound.x >= reflect_col)
+                        .map(|mound| (2 * reflect_col - mound.x - 1, mound.y).into())
+                        .all(|mound_reflect| self.mounds.get(&mound_reflect).is_some())
             })
             .sum::<u32>();
-        let row_score = (1..max_row )
-            .filter_map(|reflect_row| {
+        let row_score = (1..max_row)
+            .filter(|reflect_row| {
+                let reflect_row = * reflect_row;
                 let span = reflect_row.min(max_row - reflect_row);
-                (self.mounds
+                self
+                    .mounds
                     .iter()
                     .filter(|mound| mound.y + span >= reflect_row && mound.y < reflect_row)
                     .map(|mound| (mound.x, 2 * reflect_row - mound.y - 1).into())
                     .all(|mound_reflect| self.mounds.get(&mound_reflect).is_some())
-                    &&
-                self.mounds
-                    .iter()
-                    .filter(|mound|mound.y < reflect_row + span && mound.y >= reflect_row)
-                    .map(|mound| (mound.x, 2*reflect_row - mound.y - 1).into())
-                    .all(|mound_reflect| self.mounds.get(&mound_reflect).is_some())
-                    )
-                    .then_some(reflect_row)
+                    && self
+                        .mounds
+                        .iter()
+                        .filter(|mound| mound.y < reflect_row + span && mound.y >= reflect_row)
+                        .map(|mound| (mound.x, 2 * reflect_row - mound.y - 1).into())
+                        .all(|mound_reflect| self.mounds.get(&mound_reflect).is_some())
             })
             .sum::<u32>()
             * 100;
@@ -59,10 +56,22 @@ impl Drawing {
     }
 }
 
+/// day 13 part 1 of aoc 2023
+///
+/// # Arguments
+/// - input the input for today's puzzle
+///
+/// # Panics
+/// panics whne it cannot parse the input OR when ever the number of game numbers is greater than
+/// usize
 #[must_use]
-pub fn part1(_input: &str) -> String {
-    let (_, drawings) = parse_input(_input).expect("aoc always valid");
-    drawings.iter().map(Drawing::process).sum::<u32>().to_string()
+pub fn part1(input: &str) -> String {
+    let (_, drawings) = parse_input(input).expect("aoc always valid");
+    drawings
+        .iter()
+        .map(Drawing::process)
+        .sum::<u32>()
+        .to_string()
 }
 
 fn parse_drawing(input: &str) -> IResult<&str, Drawing> {
@@ -82,13 +91,16 @@ fn parse_drawing(input: &str) -> IResult<&str, Drawing> {
                 )
             })
         })
-        .filter_map(|(x, y, mound)| (mound == '#').then_some(UVec2::from((x, y)) ))
+        .filter_map(|(x, y, mound)| (mound == '#').then_some(UVec2::from((x, y))))
         .collect();
     Ok((input, Drawing { size, mounds }))
 }
 
-fn parse_input(input: &str) -> IResult<&str, Vec<Drawing>>{
-    separated_list1(tuple((complete::line_ending, complete::line_ending)), parse_drawing)(input)
+fn parse_input(input: &str) -> IResult<&str, Vec<Drawing>> {
+    separated_list1(
+        tuple((complete::line_ending, complete::line_ending)),
+        parse_drawing,
+    )(input)
 }
 
 #[cfg(test)]
@@ -144,4 +156,3 @@ mod test {
         assert_eq!(result, "405".to_string());
     }
 }
-
