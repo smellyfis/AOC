@@ -17,10 +17,9 @@ impl Drawing {
         let (max_col, max_row) = self.size.into();
         let col_score = (1..max_col)
             .filter(|reflect_col| {
-                let reflect_col = * reflect_col;
+                let reflect_col = *reflect_col;
                 let span = reflect_col.min(max_col - reflect_col);
-                self
-                    .mounds
+                self.mounds
                     .iter()
                     .filter(|mound| mound.x + span >= reflect_col && mound.x < reflect_col)
                     .map(|mound| (2 * reflect_col - mound.x - 1, mound.y).into())
@@ -35,10 +34,9 @@ impl Drawing {
             .sum::<u32>();
         let row_score = (1..max_row)
             .filter(|reflect_row| {
-                let reflect_row = * reflect_row;
+                let reflect_row = *reflect_row;
                 let span = reflect_row.min(max_row - reflect_row);
-                self
-                    .mounds
+                self.mounds
                     .iter()
                     .filter(|mound| mound.y + span >= reflect_row && mound.y < reflect_row)
                     .map(|mound| (mound.x, 2 * reflect_row - mound.y - 1).into())
