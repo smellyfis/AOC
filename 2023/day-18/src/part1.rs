@@ -37,14 +37,14 @@ pub fn part1(input: &str) -> String {
     let corners = steps
         .iter()
         .scan(I64Vec2::splat(0), |cursor, next| {
-            let dir =match next.direction {
-                            Direction::Up => I64Vec2::NEG_Y,
-                            Direction::Down => I64Vec2::Y,
-                            Direction::Left => I64Vec2::NEG_X,
-                            Direction::Right => I64Vec2::X,
-                        };
+            let dir = match next.direction {
+                Direction::Up => I64Vec2::NEG_Y,
+                Direction::Down => I64Vec2::Y,
+                Direction::Left => I64Vec2::NEG_X,
+                Direction::Right => I64Vec2::X,
+            };
             *cursor += next.count * dir;
-            Some( *cursor)
+            Some(*cursor)
         })
         .collect::<Vec<_>>();
     let perimeter = corners
@@ -61,10 +61,14 @@ pub fn part1(input: &str) -> String {
             let dist = (*b - *a).abs();
             dist.x + dist.y
         };
-    let area = (corners.iter().tuple_windows().map(|(a,b)| {
-        a.x * b.y -a.y *b.x
-    }).sum::<i64>() + perimeter
-        )/2 +1;
+    let area = (corners
+        .iter()
+        .tuple_windows()
+        .map(|(a, b)| a.x * b.y - a.y * b.x)
+        .sum::<i64>()
+        + perimeter)
+        / 2
+        + 1;
     area.to_string()
 }
 

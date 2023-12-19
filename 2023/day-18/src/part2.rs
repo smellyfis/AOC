@@ -41,13 +41,13 @@ pub fn part2(input: &str) -> String {
         .iter()
         .scan(I64Vec2::splat(0), |cursor, next| {
             let dir = match next.direction {
-                            Direction::Up => I64Vec2::NEG_Y,
-                            Direction::Down => I64Vec2::Y,
-                            Direction::Left => I64Vec2::NEG_X,
-                            Direction::Right => I64Vec2::X,
-                        };
+                Direction::Up => I64Vec2::NEG_Y,
+                Direction::Down => I64Vec2::Y,
+                Direction::Left => I64Vec2::NEG_X,
+                Direction::Right => I64Vec2::X,
+            };
             *cursor += next.count * dir;
-            Some( *cursor)
+            Some(*cursor)
         })
         .collect::<Vec<_>>();
 
@@ -76,7 +76,7 @@ pub fn part2(input: &str) -> String {
     .abs()
         + 1;
 
-    (area ).to_string()
+    (area).to_string()
 }
 
 fn parse_step(input: &str) -> IResult<&str, Step> {
