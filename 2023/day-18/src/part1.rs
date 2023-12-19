@@ -37,7 +37,7 @@ pub fn part1(input: &str) -> String {
     let (_, steps) = parse_input(input).expect("valid aoc content not found");
     let mut cursor = IVec2::splat(0);
     let mut grid = HashMap::from([(IVec2::splat(0), '#')]);
-    steps.iter().for_each(|step| {
+    for step in &steps {
         match step.direction {
             Direction::Up => {
                 (1..=step.count).for_each(|x| {
@@ -68,7 +68,7 @@ pub fn part1(input: &str) -> String {
                 cursor += IVec2::new(step.count, 0);
             }
         };
-    });
+    }
     let (min_x, min_y, max_x, max_y) = grid.keys().fold(
         (i32::MAX, i32::MAX, i32::MIN, i32::MIN),
         |(min_x, min_y, max_x, max_y), pos| {
