@@ -1,8 +1,7 @@
 #![warn(clippy::all, clippy::pedantic)]
 
-use std::collections::HashMap;
-
-use glam::IVec2;
+use glam::I64Vec2;
+use itertools::Itertools;
 use nom::{
     branch::alt,
     bytes::complete::tag,
@@ -21,7 +20,7 @@ enum Direction {
 
 struct Step {
     pub direction: Direction,
-    pub count: i32,
+    pub count: i64,
     pub _color: String,
 }
 
@@ -35,69 +34,38 @@ struct Step {
 #[must_use]
 pub fn part1(input: &str) -> String {
     let (_, steps) = parse_input(input).expect("valid aoc content not found");
-    let mut cursor = IVec2::splat(0);
-    let mut grid = HashMap::from([(IVec2::splat(0), '#')]);
-    for step in &steps {
-        match step.direction {
-            Direction::Up => {
-                (1..=step.count).for_each(|x| {
-                    let pos = cursor - IVec2::new(0, x);
-                    grid.insert(pos, '#');
-                });
-                cursor -= IVec2::new(0, step.count);
-            }
-            Direction::Down => {
-                (1..=step.count).for_each(|x| {
-                    let pos = cursor + IVec2::new(0, x);
-                    grid.insert(pos, '#');
-                });
-                cursor += IVec2::new(0, step.count);
-            }
-            Direction::Left => {
-                (1..=step.count).for_each(|x| {
-                    let pos = cursor - IVec2::new(x, 0);
-                    grid.insert(pos, '#');
-                });
-                cursor -= IVec2::new(step.count, 0);
-            }
-            Direction::Right => {
-                (1..=step.count).for_each(|x| {
-                    let pos = cursor + IVec2::new(x, 0);
-                    grid.insert(pos, '#');
-                });
-                cursor += IVec2::new(step.count, 0);
-            }
+    let corners = steps
+        .iter()
+        .scan(I64Vec2::splat(0), |cursor, next| {
+            let dir =match next.direction {
+                            Direction::Up => I64Vec2::NEG_Y,
+                            Direction::Down => I64Vec2::Y,
+                            Direction::Left => I64Vec2::NEG_X,
+                            Direction::Right => I64Vec2::X,
+                        };
+            *cursor += next.count * dir;
+            Some( *cursor)
+        })
+        .collect::<Vec<_>>();
+    let perimeter = corners
+        .iter()
+        .tuple_windows()
+        .map(|(a, b)| {
+            let dist = (*b - *a).abs();
+            dist.x + dist.y
+        })
+        .sum::<i64>()
+        + {
+            let a = corners.last().unwrap();
+            let b = corners.first().unwrap();
+            let dist = (*b - *a).abs();
+            dist.x + dist.y
         };
-    }
-    let (min_x, min_y, max_x, max_y) = grid.keys().fold(
-        (i32::MAX, i32::MAX, i32::MIN, i32::MIN),
-        |(min_x, min_y, max_x, max_y), pos| {
-            (
-                min_x.min(pos.x),
-                min_y.min(pos.y),
-                max_x.max(pos.x),
-                max_y.max(pos.y),
-            )
-        },
-    );
-    (min_y..=max_y).for_each(|y| {
-        let mut inside = false;
-        (min_x..=max_x).for_each(|x| {
-            let square = grid.get(&IVec2::new(x, y));
-            //print!("{}", square.unwrap_or(&'.'));
-            //is it in or out ogf the loop
-            inside = if square.is_some() && grid.get(&IVec2::new(x, y + 1)).is_some() {
-                !inside
-            } else {
-                inside
-            };
-            if square.is_none() && inside {
-                grid.insert(IVec2::new(x, y), '#');
-            }
-        });
-        //print!("\n");
-    });
-    grid.len().to_string()
+    let area = (corners.iter().tuple_windows().map(|(a,b)| {
+        a.x * b.y -a.y *b.x
+    }).sum::<i64>() + perimeter
+        )/2 +1;
+    area.to_string()
 }
 
 fn parse_step(input: &str) -> IResult<&str, Step> {
@@ -110,7 +78,7 @@ fn parse_step(input: &str) -> IResult<&str, Step> {
                 tag("R").map(|_| Direction::Right),
             )),
             complete::space1,
-            complete::i32,
+            complete::i64,
         ),
         complete::space1,
         delimited(tag("("), preceded(tag("#"), complete::hex_digit1), tag(")")),
