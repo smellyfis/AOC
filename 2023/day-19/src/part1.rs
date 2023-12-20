@@ -66,7 +66,7 @@ pub fn part1(input: &str) -> String {
                 if *label == OpLabel::Accept || *label == OpLabel::Reject {
                     return None;
                 }
-                let workflow = dbg!(workflows.get(label)).unwrap();
+                let workflow = workflows.get(label).unwrap();
                 workflow
                     .iter()
                     .find_map(|op| match op {
