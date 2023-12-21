@@ -21,6 +21,7 @@ enum ModuleType<'a> {
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 struct Module<'a> {
+    pub label: &'a str,
     pub mod_type: ModuleType<'a>,
     pub connections: Vec<&'a str>,
 }
@@ -41,6 +42,34 @@ impl<'a> Module<'a> {
                 map.insert(from, is_high_pulse);
                 m.mod_type = ModuleType::Conjunction(map.clone());
                 (m, Some(!map.values().all(|x| *x)))
+            }
+        }
+    }
+
+    fn state_hash(&self) -> String {
+        match &self.mod_type {
+            ModuleType::Broadcast => (self.label).to_string(),
+            ModuleType::FlipFlop(is_on) => {
+                if *is_on {
+                    self.label.to_uppercase()
+                } else {
+                    self.label.to_lowercase()
+                }
+            }
+            ModuleType::Conjunction(last_froms_was_high) => {
+                "%".to_string()
+                    + self.label
+                    + &last_froms_was_high
+                        .iter()
+                        .map(|(key, value)| {
+                            if *value {
+                                key.to_uppercase()
+                            } else {
+                                key.to_lowercase()
+                            }
+                        })
+                        .collect::<String>()
+                    + "%"
             }
         }
     }
@@ -89,32 +118,8 @@ fn push_button<'a>(
 
 fn setup_to_key(setup: &BTreeMap<&str, Module>) -> String {
     setup
-        .iter()
-        .map(|(label, module)| match &module.mod_type {
-            ModuleType::Broadcast => (*label).to_string(),
-            ModuleType::FlipFlop(is_on) => {
-                if *is_on {
-                    label.to_uppercase()
-                } else {
-                    label.to_lowercase()
-                }
-            }
-            ModuleType::Conjunction(map) => {
-                "%".to_string()
-                    + *label
-                    + &map
-                        .iter()
-                        .map(|(key, value)| {
-                            if *value {
-                                key.to_uppercase()
-                            } else {
-                                key.to_lowercase()
-                            }
-                        })
-                        .collect::<String>()
-                    + "%"
-            }
-        })
+        .values()
+        .map(|module| module.state_hash())
         .collect::<String>()
 }
 
@@ -199,6 +204,7 @@ fn parse_line(input: &str) -> IResult<&str, (&str, Module)> {
         (
             label,
             Module {
+                label,
                 mod_type,
                 connections,
             },
