@@ -117,10 +117,7 @@ fn push_button<'a>(
 }
 
 fn setup_to_key(setup: &BTreeMap<&str, Module>) -> String {
-    setup
-        .values()
-        .map(|module| module.state_hash())
-        .collect::<String>()
+    setup.values().map(Module::state_hash).collect::<String>()
 }
 
 /// day 20 part 1 of aoc 2023

@@ -206,6 +206,7 @@ version = "2023.0.0"
 dependencies = [
  "itertools",
  "nom",
+ "num",
  "rstest",
 ]
 
