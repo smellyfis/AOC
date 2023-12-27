@@ -222,6 +222,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "day-22"
+version = "2023.0.0"
+dependencies = [
+ "glam",
+ "itertools",
+ "nom",
+]
+
+[[package]]
 name = "day-3"
 version = "2023.0.0"
 dependencies = [
