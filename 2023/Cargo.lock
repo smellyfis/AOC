@@ -231,6 +231,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "day-23"
+version = "2023.0.0"
+dependencies = [
+ "glam",
+ "itertools",
+ "nom",
+ "nom_locate",
+ "petgraph",
+]
+
+[[package]]
 name = "day-3"
 version = "2023.0.0"
 dependencies = [
@@ -731,6 +742,16 @@ dependencies = [
  "num-traits",
  "rustc-hash",
  "thiserror",
+]
+
+[[package]]
+name = "petgraph"
+version = "0.6.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e1d3afd2628e69da2be385eb6f2fd57c8ac7977ceeff6dc166ff1657b0e386a9"
+dependencies = [
+ "fixedbitset",
+ "indexmap",
 ]
 
 [[package]]
