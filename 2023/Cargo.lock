@@ -248,6 +248,7 @@ dependencies = [
  "glam",
  "itertools",
  "nom",
+ "num",
 ]
 
 [[package]]
