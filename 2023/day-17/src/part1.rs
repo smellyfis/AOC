@@ -1,8 +1,6 @@
 #![warn(clippy::all, clippy::pedantic)]
 
-use std::{
-    collections::{HashMap, VecDeque},
-};
+use std::collections::{HashMap, VecDeque};
 
 use glam::IVec2;
 use pathfinding::prelude::dijkstra;
@@ -106,4 +104,3 @@ mod test {
         assert_eq!(result, "102".to_string());
     }
 }
-

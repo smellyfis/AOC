@@ -12,7 +12,10 @@ pub fn part2(input: &str) -> String {
     println!("{values:?}");
     values
         .iter()
-        .map(|v| v.first().expect("There is always at least one number") * 10 + v.last().expect("there is always at least one number"))
+        .map(|v| {
+            v.first().expect("There is always at least one number") * 10
+                + v.last().expect("there is always at least one number")
+        })
         .sum::<u32>()
         .to_string()
 }
@@ -42,7 +45,11 @@ fn parse_line(line: &str) -> Vec<u32> {
             } else if reduced_line.starts_with("zero") {
                 Some(0)
             } else {
-                reduced_line.chars().next().expect("there is alwayss a character").to_digit(10)
+                reduced_line
+                    .chars()
+                    .next()
+                    .expect("there is alwayss a character")
+                    .to_digit(10)
             };
 
             result

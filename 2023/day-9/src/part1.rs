@@ -59,4 +59,3 @@ mod test {
         assert_eq!(result, "114".to_string());
     }
 }
-

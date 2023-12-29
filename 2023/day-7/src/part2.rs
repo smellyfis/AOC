@@ -1,12 +1,12 @@
 #![warn(clippy::all, clippy::pedantic)]
 use itertools::Itertools;
 use nom::{character::complete, multi::separated_list1, sequence::separated_pair, IResult};
+use std::fmt;
 use std::{
     cmp::{Ord, Ordering, PartialOrd},
     collections::BTreeMap,
     str::FromStr,
 };
-use std::fmt;
 
 #[derive(Debug)]
 struct Day1Part2Error;
@@ -70,20 +70,20 @@ impl From<&Card> for &u32 {
 }
 impl fmt::Display for Card {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> fmt::Result {
-        let c = match self  {
+        let c = match self {
             Card::Joker => 'J',
-            Card::Two =>  '2',
-            Card::Three =>  '3',
-            Card::Four =>  '4',
-            Card::Five =>  '5',
-            Card::Six =>  '6',
-            Card::Seven =>  '7',
-            Card::Eight =>  '8',
-            Card::Nine =>  '9',
-            Card::Ten =>  'T',
-            Card::Queen =>  'Q',
-            Card::King =>  'K',
-            Card::Ace =>  'A',
+            Card::Two => '2',
+            Card::Three => '3',
+            Card::Four => '4',
+            Card::Five => '5',
+            Card::Six => '6',
+            Card::Seven => '7',
+            Card::Eight => '8',
+            Card::Nine => '9',
+            Card::Ten => 'T',
+            Card::Queen => 'Q',
+            Card::King => 'K',
+            Card::Ace => 'A',
         };
         write!(f, "{c}")
     }
@@ -117,7 +117,7 @@ impl From<&Hand> for HandType {
             .collect::<Vec<_>>()[..]
         {
             [(_, x), ..] if jokers + x == 5 => Self::FiveOfAKind,
-            [] if jokers  == 5 => Self::FiveOfAKind,
+            [] if jokers == 5 => Self::FiveOfAKind,
             [(_, x), ..] if jokers + x == 4 => Self::FourOfAKind,
             [(_, 3), (_, 2)] => Self::FullHouse,
             [(_, 2), (_, 2)] if jokers == 1 => Self::FullHouse,

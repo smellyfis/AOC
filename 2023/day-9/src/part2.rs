@@ -61,4 +61,3 @@ mod test {
         assert_eq!(result, "2".to_string());
     }
 }
-

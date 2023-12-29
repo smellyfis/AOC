@@ -1,8 +1,6 @@
 #![warn(clippy::all, clippy::pedantic)]
 
-use std::{
-    collections::{HashMap, VecDeque},
-};
+use std::collections::{HashMap, VecDeque};
 
 use glam::IVec2;
 use pathfinding::prelude::dijkstra;
@@ -46,7 +44,7 @@ pub fn part2(input: &str) -> String {
                     //let b = (next_lasts[3] - next_lasts[2]).signum();
                     //let c = next_lasts[4] - next_lasts[3]).signum();
 
-                    if a == dir || a *-1 == dir{
+                    if a == dir || a * -1 == dir {
                         None
                     } else {
                         next_lasts.pop_back();
@@ -58,14 +56,26 @@ pub fn part2(input: &str) -> String {
             })
             .map(|pos| {
                 let range = pos.0 - pos.1[1];
-                let total = if range.x == 0  && range.y > 0 {
-                    (0..range.y).map(|y| pos.0 - IVec2::new(0,y)).map(|v| grid.get(&v).unwrap()).sum::<u32>()
+                let total = if range.x == 0 && range.y > 0 {
+                    (0..range.y)
+                        .map(|y| pos.0 - IVec2::new(0, y))
+                        .map(|v| grid.get(&v).unwrap())
+                        .sum::<u32>()
                 } else if range.x == 0 && range.y < 0 {
-                    (range.y+1..=0).map(|y| pos.0 - IVec2::new(0,y)).map(|v| grid.get(&v).unwrap()).sum::<u32>()
+                    (range.y + 1..=0)
+                        .map(|y| pos.0 - IVec2::new(0, y))
+                        .map(|v| grid.get(&v).unwrap())
+                        .sum::<u32>()
                 } else if range.y == 0 && range.x > 0 {
-                    (0..range.x).map(|x| pos.0 - IVec2::new(x,0)).map(|v| grid.get(&v).unwrap()).sum::<u32>()
+                    (0..range.x)
+                        .map(|x| pos.0 - IVec2::new(x, 0))
+                        .map(|v| grid.get(&v).unwrap())
+                        .sum::<u32>()
                 } else {
-                    (range.x+1..=0).map(|x| pos.0 - IVec2::new(x,0)).map(|v| grid.get(&v).unwrap()).sum::<u32>()
+                    (range.x + 1..=0)
+                        .map(|x| pos.0 - IVec2::new(x, 0))
+                        .map(|v| grid.get(&v).unwrap())
+                        .sum::<u32>()
                 };
                 (pos, total)
             })
@@ -103,7 +113,8 @@ mod test {
     use rstest::rstest;
 
     #[rstest]
-    #[case("2413432311323
+    #[case(
+        "2413432311323
 3215453535623
 3255245654254
 3446585845452
@@ -115,15 +126,19 @@ mod test {
 4564679986453
 1224686865563
 2546548887735
-4322674655533", "94")]
-    #[case("111111111111
+4322674655533",
+        "94"
+    )]
+    #[case(
+        "111111111111
 999999999991
 999999999991
 999999999991
-999999999991", "71")]
+999999999991",
+        "71"
+    )]
     fn part2_works(#[case] input: &str, #[case] expected: &str) {
         let result = part2(input);
         assert_eq!(result, expected);
     }
 }
-

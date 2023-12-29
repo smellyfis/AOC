@@ -3,8 +3,7 @@
 use std::collections::HashMap;
 
 use glam::IVec2;
-use petgraph::{prelude::*, algo};
-
+use petgraph::{algo, prelude::*};
 
 #[derive(Debug, Copy, Clone)]
 enum PointType {
@@ -32,21 +31,44 @@ pub fn part1(input: &str) -> String {
     let maze = parse_input(input);
     //get the start position (assuming there is only one)
     let start = *maze.keys().find(|pos| pos.y == 0).unwrap();
-    let end = maze.keys().fold(IVec2::splat(0), | max, current|  if max.y.max(current.y) == current.y { *current } else {max});
-    let mut maze_graph = DiGraph::<&PointType, u32>::new();
-    let node_map = maze.iter().map(|(pos, point_type)| (pos, maze_graph.add_node(point_type)) ).collect::<HashMap<_,_>>();
-
-    maze.iter().flat_map(|(pos, point_type)| {
-        point_type.next_possibles().iter().copied().filter_map(|dir| {
-            let next_pos = dir + *pos;
-            node_map.get(&next_pos).is_some().then(|| (node_map[pos], node_map[&next_pos], 1))
-        }).collect::<Vec<_>>()
-    })
-    .for_each(|(a, b, weight)| {
-        maze_graph.add_edge(a,b,weight);
+    let end = maze.keys().fold(IVec2::splat(0), |max, current| {
+        if max.y.max(current.y) == current.y {
+            *current
+        } else {
+            max
+        }
     });
+    let mut maze_graph = DiGraph::<&PointType, u32>::new();
+    let node_map = maze
+        .iter()
+        .map(|(pos, point_type)| (pos, maze_graph.add_node(point_type)))
+        .collect::<HashMap<_, _>>();
 
-    (algo::all_simple_paths::<Vec<_>,_>(&maze_graph, node_map[&start], node_map[&end], 0, None).max_by(|a, b| a.len().cmp(&b.len())).unwrap().len() -1).to_string()
+    maze.iter()
+        .flat_map(|(pos, point_type)| {
+            point_type
+                .next_possibles()
+                .iter()
+                .copied()
+                .filter_map(|dir| {
+                    let next_pos = dir + *pos;
+                    node_map
+                        .get(&next_pos)
+                        .is_some()
+                        .then(|| (node_map[pos], node_map[&next_pos], 1))
+                })
+                .collect::<Vec<_>>()
+        })
+        .for_each(|(a, b, weight)| {
+            maze_graph.add_edge(a, b, weight);
+        });
+
+    (algo::all_simple_paths::<Vec<_>, _>(&maze_graph, node_map[&start], node_map[&end], 0, None)
+        .max_by(|a, b| a.len().cmp(&b.len()))
+        .unwrap()
+        .len()
+        - 1)
+    .to_string()
 }
 
 fn parse_input(input: &str) -> HashMap<IVec2, PointType> {
@@ -103,5 +125,3 @@ mod test {
         assert_eq!(result, "94".to_string());
     }
 }
-
-

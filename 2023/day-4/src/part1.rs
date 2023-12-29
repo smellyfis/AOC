@@ -103,7 +103,6 @@ mod test {
         let (input, card) = parse_card(line).expect("card should be parsed");
         assert_eq!(input, "");
         assert_eq!(card.get_score(), expected);
-
     }
 
     const INPUT: &str = "Card 1: 41 48 83 86 17 | 83 86  6 31 17  9 48 53

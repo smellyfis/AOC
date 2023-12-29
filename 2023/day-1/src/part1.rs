@@ -23,7 +23,10 @@ pub fn part1(input: &str) -> nom::IResult<&str, String> {
         "",
         values
             .iter()
-            .map(|v| v.first().expect("always at least one number") * 10 + v.last().expect("always atleast one number"))
+            .map(|v| {
+                v.first().expect("always at least one number") * 10
+                    + v.last().expect("always atleast one number")
+            })
             .sum::<u32>()
             .to_string(),
     ))

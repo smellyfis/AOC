@@ -11,12 +11,7 @@
 pub fn part1(input: &str) -> String {
     input
         .lines()
-        .map(|x| {
-            x.split(',')
-                .map(unhash)
-                .sum::<usize>()
-                .to_string()
-        })
+        .map(|x| x.split(',').map(unhash).sum::<usize>().to_string())
         .next()
         .unwrap()
 }
