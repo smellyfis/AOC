@@ -71,7 +71,7 @@ impl Stones {
         }
         Some((x, z))
     }
-    fn stone_to_tuples(&self) -> ((Cord, Cord, Cord), (Cord, Cord, Cord)) {
+    fn stone_to_tuples(&self) -> Stone {
         let Stones {
             start:
                 I64Vec3 {
@@ -101,37 +101,13 @@ impl Stones {
     }
 }
 
-/// day 24 part 2 of aoc 2023
-///
-/// # Arguments
-/// - input the input for today's puzzle
-///
-/// # Panics
-/// panics whne it cannot parse the input OR when ever the number of game numbers is greater than
-#[must_use]
-pub fn part2(input: &str) -> String {
-    let (_, stones) = parse_input(input).expect("Aoc should have valid input");
-    let iteresting_stones = stones
-        .iter()
-        .combinations(2)
-        .filter_map(|pair| {
-            let [a, b] = pair[..] else {
-                return None;
-            };
-            match (a.cross_xy(b), a.cross_xz(b)) {
-                (None, None) => false,
-                (None, Some(_)) | (Some(_), None) => true,
-                (Some((x1, _)), Some((x2, _))) => x1 != x2,
-            }
-            .then_some(*b)
-        })
-        .skip(4)
-        .take(3)
-        .collect::<Vec<_>>();
-    let ((p_ax, p_ay, p_az), (v_ax, v_ay, v_az)) = iteresting_stones[0].stone_to_tuples();
-    let ((p_bx, p_by, p_bz), (v_bx, v_by, v_bz)) = iteresting_stones[1].stone_to_tuples();
-    let ((p_cx, p_cy, p_cz), (v_cx, v_cy, v_cz)) = iteresting_stones[2].stone_to_tuples();
+type Stone = ((Cord, Cord, Cord), (Cord, Cord, Cord));
 
+fn get_missing_stone(stone1: Stone, stone2: Stone, stone3: Stone) -> Stone {
+    let ((p_ax, p_ay, p_az), (v_ax, v_ay, v_az)) = stone1;
+    let ((p_bx, p_by, p_bz), (v_bx, v_by, v_bz)) = stone2;
+    let ((p_cx, p_cy, p_cz), (v_cx, v_cy, v_cz)) = stone3;
+    //
     //setting up the syystem of equations
     //println!("{v_az} - {v_cz} = {:?}", v_az - v_cz);
     let mut equations = [
@@ -230,13 +206,46 @@ pub fn part2(input: &str) -> String {
             equations[row][i] = Cord::default();
         }
     }
+    (
+        (equations[0][6], equations[1][6], equations[2][6]),
+        (equations[3][6], equations[4][6], equations[5][6]),
+    )
+}
 
-    equations
+/// day 24 part 2 of aoc 2023
+///
+/// # Arguments
+/// - input the input for today's puzzle
+///
+/// # Panics
+/// panics whne it cannot parse the input OR when ever the number of game numbers is greater than
+#[must_use]
+pub fn part2(input: &str) -> String {
+    let (_, stones) = parse_input(input).expect("Aoc should have valid input");
+    let iteresting_stones = stones
         .iter()
+        .combinations(2)
+        .filter_map(|pair| {
+            let [a, b] = pair[..] else {
+                return None;
+            };
+            match (a.cross_xy(b), a.cross_xz(b)) {
+                (None, None) => false,
+                (None, Some(_)) | (Some(_), None) => true,
+                (Some((x1, _)), Some((x2, _))) => x1 != x2,
+            }
+            .then_some(*b)
+        })
+        .skip(4)
         .take(3)
-        .map(|x| x[6].to_integer())
-        .sum::<i128>()
-        .to_string()
+        .collect::<Vec<_>>();
+    let (position, _) = get_missing_stone(
+        iteresting_stones[0].stone_to_tuples(),
+        iteresting_stones[1].stone_to_tuples(),
+        iteresting_stones[2].stone_to_tuples(),
+    );
+
+    (position.0.to_integer() + position.1.to_integer() + position.2.to_integer()).to_string()
 }
 
 fn parse_tuple(input: &str) -> IResult<&str, I64Vec3> {
