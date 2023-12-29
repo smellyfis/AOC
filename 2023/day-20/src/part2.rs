@@ -300,7 +300,7 @@ mod test {
 
     #[rstest]
     #[case(
-        "broadcaster -> a, c
+        "broadcaster -> a, c, inv
 %c -> d
 %a -> b
 &inv -> con
