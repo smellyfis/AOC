@@ -12,7 +12,7 @@ nom = { workspace = true }
 itertools = {workspace = true }
 nom_locate.workspace = true
 glam.workspace = true
-pathfinding = "4.6.0"
+pathfinding.workspace = true
 
 [dev-dependencies]
 rstest.workspace = true

@@ -14,14 +14,13 @@ enum PointType {
     OnlyUp,
 }
 
-impl PointType {
-    fn next_possibles(self) -> Vec<IVec2> {
-        match self {
-            _ => vec![IVec2::X, IVec2::Y, IVec2::NEG_X, IVec2::NEG_Y],
-        }
-    }
-}
-
+/// day 23 part 2 of aoc 2023
+///
+/// # Arguments
+/// - input the input for today's puzzle
+///
+/// # Panics
+/// panics whne it cannot parse the input OR when ever the number of game numbers is greater than
 #[must_use]
 pub fn part2(input: &str) -> String {
     let maze = parse_input(input);
@@ -41,9 +40,8 @@ pub fn part2(input: &str) -> String {
         .collect::<HashMap<_, _>>();
 
     maze.iter()
-        .flat_map(|(pos, point_type)| {
-            point_type
-                .next_possibles()
+        .flat_map(|(pos, _point_type)| {
+            [IVec2::X, IVec2::Y, IVec2::NEG_X, IVec2::NEG_Y]
                 .iter()
                 .copied()
                 .filter_map(|dir| {

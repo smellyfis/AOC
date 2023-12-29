@@ -11,4 +11,4 @@ repository.workspace = true
 nom = { workspace = true }
 itertools = {workspace = true }
 glam.workspace = true
-num = "0.4.1"
+num.workspace = true

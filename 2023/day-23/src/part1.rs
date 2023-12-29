@@ -26,6 +26,13 @@ impl PointType {
     }
 }
 
+/// day 23 part 1 of aoc 2023
+///
+/// # Arguments
+/// - input the input for today's puzzle
+///
+/// # Panics
+/// panics whne it cannot parse the input OR when ever the number of game numbers is greater than
 #[must_use]
 pub fn part1(input: &str) -> String {
     let maze = parse_input(input);

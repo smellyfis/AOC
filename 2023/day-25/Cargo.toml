@@ -10,5 +10,5 @@ repository.workspace = true
 [dependencies]
 nom = { workspace = true }
 itertools = {workspace = true }
-petgraph = "0.6.4"
-rustworkx-core = "0.13.2"
+petgraph.workspace = true
+rustworkx-core.workspace = true

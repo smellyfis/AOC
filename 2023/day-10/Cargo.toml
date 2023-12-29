@@ -11,7 +11,7 @@ repository.workspace = true
 nom.workspace = true
 nom_locate = {workspace = true }
 itertools.workspace = true
-glam = "0.24.2"
+glam.workspace = true
 
 [dev-dependencies]
 rstest = {workspace = true}
