@@ -1,27 +1,46 @@
 #![warn(clippy::all, clippy::pedantic)]
 
+use std::{fmt::Display, ops::Not};
+
+use error_stack::{Result, Context, Report};
+use log::trace;
+
+#[derive(Debug)]
+pub struct Day1Part2Error;
+
+impl Context for Day1Part2Error{}
+
+impl Display for Day1Part2Error{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "day 1 part 2 error")
+    }
+}
+
 /// Day 1 Part 2 of AOC2023
 ///
 /// # Arguments
 /// - puzzle input
 ///
-/// # Panics
+/// # Errors
 /// this panics if there is no numbers in a line
-pub fn part2(input: &str) -> String {
-    let values = input.lines().map(parse_line).collect::<Vec<Vec<u32>>>();
-    println!("{values:?}");
+pub fn part2(input: &str) -> Result<String, Day1Part2Error> {
+    let values = input.lines().map(parse_line).collect::<Result<Vec<Vec<u32>>,_>>()?;
+    trace!("{values:?}");
     values
         .iter()
         .map(|v| {
-            v.first().expect("There is always at least one number") * 10
-                + v.last().expect("there is always at least one number")
+            v.first().and_then(|first| if let Some(last) = v.last() { Some(*first *10 + *last) } else {None}).ok_or(Day1Part2Error)
         })
-        .sum::<u32>()
-        .to_string()
+        .fold(Ok(0_u32), | sum, number |{
+            let Ok(sum) = sum else {return Err(Report::from(Day1Part2Error))};
+            let Ok(number) = number else { return Err(Report::from(Day1Part2Error))};
+            Ok(sum + number)
+        })
+        .map(|x| x.to_string())
 }
 
-fn parse_line(line: &str) -> Vec<u32> {
-    (0..line.len())
+fn parse_line(line: &str) -> Result<Vec<u32>, Day1Part2Error> {
+    let numbers: Vec<u32> = (0..line.len())
         .filter_map(|index| {
             let reduced_line = &line[index..];
             let result = if reduced_line.starts_with("one") {
@@ -48,13 +67,13 @@ fn parse_line(line: &str) -> Vec<u32> {
                 reduced_line
                     .chars()
                     .next()
-                    .expect("there is alwayss a character")
-                    .to_digit(10)
+                    .and_then(|x| x.to_digit(10))
             };
 
             result
         })
-        .collect()
+        .collect();
+    numbers.is_empty().not().then_some(numbers).ok_or(Report::from(Day1Part2Error))
 }
 
 #[cfg(test)]
@@ -69,9 +88,10 @@ xtwone3four
 zoneight234
 7pqrstsixteen";
 
-    #[test]
+    #[test_log::test]
+    #[test_log(default_log_filter = "trace")]
     fn part2_works() {
-        let result = part2(INPUT);
+        let result = part2(INPUT).unwrap();
         assert_eq!(result, "281".to_string());
     }
 }

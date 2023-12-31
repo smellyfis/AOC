@@ -13,4 +13,8 @@ derive-getters.workspace = true
 error-stack.workspace = true
 itertools.workspace = true
 log.workspace = true
+logs = "0.7.1"
 nom.workspace = true
+
+[dev-dependencies]
+test-log = {version="0.2.14", features=["default", "unstable"]}
