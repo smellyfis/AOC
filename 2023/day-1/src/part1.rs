@@ -9,14 +9,14 @@ use nom::{
     multi::separated_list1,
 };
 
-use error_stack::{Result, ResultExt, Context, Report};
+use error_stack::{Context, Report, Result, ResultExt};
 
 #[derive(Debug)]
 pub struct Day1Part1Error;
 
-impl Context for Day1Part1Error{}
+impl Context for Day1Part1Error {}
 
-impl Display for Day1Part1Error{
+impl Display for Day1Part1Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "day 1 part 1 error")
     }
@@ -30,16 +30,21 @@ impl Display for Day1Part1Error{
 /// # Errors
 /// errors when can't parse the input
 pub fn part1(input: &str) -> Result<String, Day1Part1Error> {
-    let (_input, values) = parse_input(input).map_err(|x|Report::from(x.to_owned())).change_context(Day1Part1Error)?;
+    let (_input, values) = parse_input(input)
+        .map_err(|x| Report::from(x.to_owned()))
+        .change_context(Day1Part1Error)?;
     trace!("{values:?}");
     values
         .iter()
         .map(|v| {
-            v.first().and_then(|first| if let Some(last) = v.last() { Some(*first *10 + *last) } else {None}).ok_or(Day1Part1Error)
+            v.first()
+                .and_then(|first| v.last().map(|last| *first * 10 + *last))
+                .ok_or(Day1Part1Error)
         })
-        .fold(Ok(0_u32), | sum, number |{
-            let Ok(sum) = sum else {return Err(Report::from(Day1Part1Error))};
-            let Ok(number) = number else { return Err(Report::from(Day1Part1Error))};
+        .try_fold(0_u32, |sum, number| {
+            let Ok(number) = number else {
+                return Err(Report::from(Day1Part1Error));
+            };
             Ok(sum + number)
         })
         .map(|x| x.to_string())
