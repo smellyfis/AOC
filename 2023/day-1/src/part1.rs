@@ -1,7 +1,5 @@
 #![warn(clippy::all, clippy::pedantic)]
 
-use std::fmt::Display;
-
 use log::trace;
 use nom::{
     self,
@@ -9,17 +7,15 @@ use nom::{
     multi::separated_list1,
 };
 
-use error_stack::{Context, Report, Result, ResultExt};
+use error_stack::{Report, Result, ResultExt};
+use thiserror::Error;
 
-#[derive(Debug)]
-pub struct Day1Part1Error;
-
-impl Context for Day1Part1Error {}
-
-impl Display for Day1Part1Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "day 1 part 1 error")
-    }
+#[derive(Debug, Error)]
+pub enum Day1Part1Error {
+    #[error("Problem parsing Day 1")]
+    ParseError,
+    #[error("Day 1 Input parsed to Empty")]
+    EmptyInput,
 }
 
 /// Day-1 part 1 of AC2023
@@ -32,21 +28,16 @@ impl Display for Day1Part1Error {
 pub fn part1(input: &str) -> Result<String, Day1Part1Error> {
     let (_input, values) = parse_input(input)
         .map_err(|x| Report::from(x.to_owned()))
-        .change_context(Day1Part1Error)?;
+        .change_context(Day1Part1Error::ParseError)?;
     trace!("{values:?}");
     values
         .iter()
         .map(|v| {
             v.first()
                 .and_then(|first| v.last().map(|last| *first * 10 + *last))
-                .ok_or(Day1Part1Error)
+                .ok_or(Day1Part1Error::EmptyInput)
         })
-        .try_fold(0_u32, |sum, number| {
-            let Ok(number) = number else {
-                return Err(Report::from(Day1Part1Error));
-            };
-            Ok(sum + number)
-        })
+        .try_fold(0_u32, |sum, number| Ok(sum + number?))
         .map(|x| x.to_string())
 }
 

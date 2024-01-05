@@ -11,3 +11,8 @@ repository.workspace = true
 nom.workspace = true
 itertools.workspace = true
 log.workspace = true
+error-stack.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+test-log.workspace = true

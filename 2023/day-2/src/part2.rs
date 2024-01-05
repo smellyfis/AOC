@@ -1,11 +1,19 @@
 #![warn(clippy::all, clippy::pedantic)]
 
+use error_stack::{Report, Result, ResultExt};
 use nom::{
     bytes::complete::tag,
     character::complete::{self, newline},
     multi::separated_list1,
     sequence::{preceded, separated_pair},
 };
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum Day2Part2Error {
+    #[error("there was a problem parsing")]
+    ParseError,
+}
 
 #[derive(Debug)]
 struct Round {
@@ -44,11 +52,13 @@ impl Game {
 /// # Arguments
 /// - input the puszzle input
 ///
-/// # Panics
-/// panics whenever the input isn't parsable
-pub fn part2(input: &str) -> String {
-    let (_, games) = process_input(input).expect("there should be input");
-    games.iter().map(Game::to_power).sum::<u64>().to_string()
+/// # Errors
+/// errors whenever the input isn't parsable
+pub fn part2(input: &str) -> Result<String, Day2Part2Error> {
+    let (_, games) = process_input(input)
+        .map_err(|err| Report::from(err.to_owned()))
+        .change_context(Day2Part2Error::ParseError)?; //expect("there should be input");
+    Ok(games.iter().map(Game::to_power).sum::<u64>().to_string())
 }
 
 fn process_block(input: &str) -> nom::IResult<&str, (u32, String)> {
@@ -98,9 +108,10 @@ Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
 Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
 Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
 
-    #[test]
+    #[test_log::test]
+    #[test_log(default_log_filter = "trace")]
     fn part2_works() {
-        let result = part2(INPUT);
+        let result = part2(INPUT).unwrap();
         assert_eq!(result, "2286".to_string());
     }
 }

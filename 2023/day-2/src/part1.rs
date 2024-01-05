@@ -1,5 +1,6 @@
 #![warn(clippy::all, clippy::pedantic)]
 
+use error_stack::{Report, Result, ResultExt};
 use log::debug;
 use nom::{
     bytes::complete::tag,
@@ -7,6 +8,13 @@ use nom::{
     multi::separated_list1,
     sequence::{preceded, separated_pair},
 };
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum Day2Part1Error {
+    #[error("there was a problem parsing")]
+    ParseError,
+}
 
 #[derive(Debug)]
 struct Round {
@@ -23,8 +31,7 @@ struct Game {
 
 impl Game {
     fn to_part1(&self) -> Option<u32> {
-        if self
-            .rounds
+        self.rounds
             .iter()
             .find_map(|r| {
                 //TODO if inverted use find_map
@@ -34,12 +41,8 @@ impl Game {
                     None
                 }
             })
-            .is_some()
-        {
-            None
-        } else {
-            Some(self.id)
-        }
+            .is_none()
+            .then_some(self.id)
     }
 }
 
@@ -48,16 +51,18 @@ impl Game {
 /// # Arguments
 /// - input the puszzle input
 ///
-/// # Panics
-/// panics whenever the input isn't parsable
-pub fn part1(input: &str) -> String {
-    let (_, games) = process_input(input).expect("there should be input");
+/// # Errors
+/// errors whenever the input isn't parsable
+pub fn part1(input: &'static str) -> Result<String, Day2Part1Error> {
+    let (_, games) = process_input(input)
+        .map_err(|err| Report::from(err.to_owned()))
+        .change_context(Day2Part1Error::ParseError)?;
     debug!("{games:?}");
-    games
+    Ok(games
         .iter()
         .filter_map(Game::to_part1)
         .sum::<u32>()
-        .to_string()
+        .to_string())
 }
 
 fn process_block(input: &str) -> nom::IResult<&str, (u32, String)> {
@@ -107,9 +112,10 @@ Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
 Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
 Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
 
-    #[test]
+    #[test_log::test]
+    #[test_log(default_log_filter = "trace")]
     fn part1_works() {
-        let result = part1(INPUT);
+        let result = part1(INPUT).unwrap();
         assert_eq!(result, "8".to_string());
     }
 }

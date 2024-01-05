@@ -1,19 +1,17 @@
 #![warn(clippy::all, clippy::pedantic)]
 
-use std::{fmt::Display, ops::Not};
+use std::ops::Not;
 
-use error_stack::{Context, Report, Result};
+use error_stack::{report, Result};
 use log::trace;
+use thiserror::Error;
 
-#[derive(Debug)]
-pub struct Day1Part2Error;
-
-impl Context for Day1Part2Error {}
-
-impl Display for Day1Part2Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "day 1 part 2 error")
-    }
+#[derive(Debug, Error)]
+pub enum Day1Part2Error {
+    #[error("Problem parsing Day-1 Part2")]
+    ParseError,
+    #[error("Day 1 Input parsed to Empty")]
+    EmptyInput,
 }
 
 /// Day 1 Part 2 of AOC2023
@@ -34,14 +32,9 @@ pub fn part2(input: &str) -> Result<String, Day1Part2Error> {
         .map(|v| {
             v.first()
                 .and_then(|first| v.last().map(|last| *first * 10 + *last))
-                .ok_or(Day1Part2Error)
+                .ok_or(report!(Day1Part2Error::EmptyInput))
         })
-        .try_fold(0_u32, |sum, number| {
-            let Ok(number) = number else {
-                return Err(Report::from(Day1Part2Error));
-            };
-            Ok(sum + number)
-        })
+        .try_fold(0_u32, |sum, number| Ok(sum + number?))
         .map(|x| x.to_string())
 }
 
@@ -80,7 +73,7 @@ fn parse_line(line: &str) -> Result<Vec<u32>, Day1Part2Error> {
         .is_empty()
         .not()
         .then_some(numbers)
-        .ok_or(Report::from(Day1Part2Error))
+        .ok_or(report!(Day1Part2Error::ParseError))
 }
 
 #[cfg(test)]
