@@ -1,18 +1,13 @@
 #![warn(clippy::all, clippy::pedantic)]
 
-use std::fmt::Display;
+use error_stack::Result;
+use thiserror::Error;
 
-use error_stack::{Context, Result};
-
-#[derive(Debug)]
-pub struct {{ project-name | upper_camel_case }}Part2Error;
-
-impl Context for {{ project-name | upper_camel_case }}Part2Error {}
-
-impl Display for {{ project-name | upper_camel_case }}Part2Error {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "day 1 part 1 error")
-    }
+// {{project-name}}
+#[derive(Debug, Error)]
+pub enum {{ project-name | upper_camel_case }}Part2Error{
+    #[error("Problem parsing {{project-name | title_case }}")]
+    ParseError,
 }
 
 pub fn part2 (_input: &str) -> Result<String, {{ project-name | upper_camel_case }}Part2Error> {
