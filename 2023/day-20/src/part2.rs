@@ -38,7 +38,7 @@ struct Module<'a> {
 }
 
 impl<'a> Module<'a> {
-    fn handle_pulse(&mut self, from: &'a str, pulse: Signal) -> Option<Signal>{
+    fn handle_pulse(&mut self, from: &'a str, pulse: Signal) -> Option<Signal> {
         /*println!(
             "{from} -{}-> {}",
             if pulse == Signal::Low { "low" } else { "high" },
@@ -103,9 +103,7 @@ impl<'a> Module<'a> {
     }
 }
 
-fn push_button<'a>(
-    setup: &mut BTreeMap<&'a str, Module<'a>>,
-) -> (bool, Vec<(&'a str, Signal)>) {
+fn push_button<'a>(setup: &mut BTreeMap<&'a str, Module<'a>>) -> (bool, Vec<(&'a str, Signal)>) {
     let mut queue = VecDeque::from(vec![("broadcaster", "button", Signal::Low)]);
     let mut triggered = Vec::new();
     while let Some((current_label, from, signal)) = queue.pop_front() {
@@ -117,7 +115,7 @@ fn push_button<'a>(
             continue;
         };
 
-        if let Some(signal_to_send) = current.handle_pulse(from, signal){
+        if let Some(signal_to_send) = current.handle_pulse(from, signal) {
             triggered.push((current_label, signal));
             current.connections.iter().for_each(|con| {
                 queue.push_back((con, current_label, signal_to_send));

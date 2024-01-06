@@ -72,9 +72,7 @@ impl<'a> Module<'a> {
     }
 }
 
-fn push_button<'a>(
-    setup: &mut BTreeMap<&'a str, Module<'a>>,
-) -> (usize, usize) {
+fn push_button<'a>(setup: &mut BTreeMap<&'a str, Module<'a>>) -> (usize, usize) {
     let mut queue = VecDeque::from(vec![("broadcaster", None, false)]);
     let mut low_signals = 1;
     let mut high_signals = 0;
@@ -134,7 +132,7 @@ pub fn part1(input: &str) -> String {
         let (low, high) = push_button(&mut setup);
         high_count += high;
         low_count += low;
-    };
+    }
 
     (high_count * low_count).to_string()
 }

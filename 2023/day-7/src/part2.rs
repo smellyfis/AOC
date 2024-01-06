@@ -101,16 +101,15 @@ enum HandType {
 
 impl From<&Hand> for HandType {
     fn from(value: &Hand) -> Self {
-        let mut map = value.cards.into_iter().fold(BTreeMap::new(), |mut acc, card| {
-            acc.entry(card).and_modify(|c| *c += 1).or_insert(1);
-            acc
-        });
+        let mut map = value
+            .cards
+            .into_iter()
+            .fold(BTreeMap::new(), |mut acc, card| {
+                acc.entry(card).and_modify(|c| *c += 1).or_insert(1);
+                acc
+            });
         let jokers = map.remove(&Card::Joker).unwrap_or(0);
-        match map
-            .into_values()
-            .sorted_by(|a, &b| b.cmp(a))
-            .as_slice()
-        {
+        match map.into_values().sorted_by(|a, &b| b.cmp(a)).as_slice() {
             [x, ..] if jokers + x == 5 => Self::FiveOfAKind,
             [] if jokers == 5 => Self::FiveOfAKind,
             [x, ..] if jokers + x == 4 => Self::FourOfAKind,

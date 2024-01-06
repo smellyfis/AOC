@@ -86,11 +86,7 @@ impl From<&Hand> for HandType {
             acc.entry(card).and_modify(|c| *c += 1).or_insert(1);
             acc
         });
-        match map
-            .into_values()
-            .sorted_by(|a, &b| b.cmp(a))
-            .as_slice()
-        {
+        match map.into_values().sorted_by(|a, &b| b.cmp(a)).as_slice() {
             [5, ..] => Self::FiveOfAKind,
             [4, ..] => Self::FourOfAKind,
             [3, 2, ..] => Self::FullHouse,
