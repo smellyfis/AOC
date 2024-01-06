@@ -6,6 +6,10 @@ use {{ crate_name }}::part2;
 use error_stack::{Result, ResultExt};
 use thiserror::Error;
 
+#[cfg(feature = "dhat-heap")]
+#[global_allocator]
+static ALLOC: dhat::Alloc = dhat::Alloc;
+
 #[derive(Debug, Error)]
 enum {{ project-name | upper_camel_case }}Error {
     #[error("Part 1 failed")]
@@ -15,6 +19,9 @@ enum {{ project-name | upper_camel_case }}Error {
 }
 
 fn main() -> Result<(), {{ project-name | upper_camel_case }}Error> {
+    #[cfg(feature = "dhat-heap")]
+    let _profiler = dhat::Profiler::new_heap();
+
     let input = include_str!("./input.txt");
     let part1_result = part1(input).change_context({{ project-name | upper_camel_case }}Error::Part1Error)?;
     println!("part 1: {part1_result}");
