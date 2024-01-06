@@ -259,10 +259,15 @@ dependencies = [
 name = "day-20"
 version = "2023.0.0"
 dependencies = [
+ "dhat",
+ "error-stack",
  "itertools 0.12.0",
+ "log",
  "nom",
  "num",
  "rstest",
+ "test-log",
+ "thiserror",
 ]
 
 [[package]]
@@ -359,6 +364,7 @@ dependencies = [
  "nom",
  "num",
  "num-traits",
+ "thiserror",
 ]
 
 [[package]]

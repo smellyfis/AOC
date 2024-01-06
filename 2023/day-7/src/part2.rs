@@ -5,7 +5,6 @@ use std::fmt;
 use std::{
     cmp::{Ord, Ordering, PartialOrd},
     collections::BTreeMap,
-    str::FromStr,
 };
 
 #[derive(Debug)]
@@ -27,23 +26,23 @@ enum Card {
     King,
     Ace,
 }
-impl FromStr for Card {
-    type Err = Day1Part2Error;
-    fn from_str(input: &str) -> Result<Self, Self::Err> {
+impl TryFrom<char> for Card {
+    type Error = Day1Part2Error;
+    fn try_from(input: char) -> Result<Self, Self::Error> {
         match input {
-            "2" => Ok(Self::Two),
-            "3" => Ok(Self::Three),
-            "4" => Ok(Self::Four),
-            "5" => Ok(Self::Five),
-            "6" => Ok(Self::Six),
-            "7" => Ok(Self::Seven),
-            "8" => Ok(Self::Eight),
-            "9" => Ok(Self::Nine),
-            "T" => Ok(Self::Ten),
-            "J" => Ok(Self::Joker),
-            "Q" => Ok(Self::Queen),
-            "K" => Ok(Self::King),
-            "A" => Ok(Self::Ace),
+            '2' => Ok(Self::Two),
+            '3' => Ok(Self::Three),
+            '4' => Ok(Self::Four),
+            '5' => Ok(Self::Five),
+            '6' => Ok(Self::Six),
+            '7' => Ok(Self::Seven),
+            '8' => Ok(Self::Eight),
+            '9' => Ok(Self::Nine),
+            'T' => Ok(Self::Ten),
+            'J' => Ok(Self::Joker),
+            'Q' => Ok(Self::Queen),
+            'K' => Ok(Self::King),
+            'A' => Ok(Self::Ace),
             _ => Err(Day1Part2Error),
         }
     }
@@ -102,28 +101,24 @@ enum HandType {
 
 impl From<&Hand> for HandType {
     fn from(value: &Hand) -> Self {
-        let mut map = value.cards.iter().fold(BTreeMap::new(), |mut acc, card| {
-            if let Some(c) = acc.get_mut(card) {
-                *c += 1;
-            } else {
-                acc.insert(card, 1);
-            }
+        let mut map = value.cards.into_iter().fold(BTreeMap::new(), |mut acc, card| {
+            acc.entry(card).and_modify(|c| *c += 1).or_insert(1);
             acc
         });
         let jokers = map.remove(&Card::Joker).unwrap_or(0);
         match map
-            .iter()
-            .sorted_by(|a, b| b.1.cmp(a.1))
-            .collect::<Vec<_>>()[..]
+            .into_values()
+            .sorted_by(|a, &b| b.cmp(a))
+            .as_slice()
         {
-            [(_, x), ..] if jokers + x == 5 => Self::FiveOfAKind,
+            [x, ..] if jokers + x == 5 => Self::FiveOfAKind,
             [] if jokers == 5 => Self::FiveOfAKind,
-            [(_, x), ..] if jokers + x == 4 => Self::FourOfAKind,
-            [(_, 3), (_, 2)] => Self::FullHouse,
-            [(_, 2), (_, 2)] if jokers == 1 => Self::FullHouse,
-            [(_, x), ..] if jokers + x == 3 => Self::ThreeOfAKind,
-            [(_, 2), (_, 2), ..] => Self::TwoPair,
-            [(_, x), ..] if jokers + x == 2 => Self::OnePair,
+            [x, ..] if jokers + x == 4 => Self::FourOfAKind,
+            [3, 2] => Self::FullHouse,
+            [2, 2] if jokers == 1 => Self::FullHouse,
+            [x, ..] if jokers + x == 3 => Self::ThreeOfAKind,
+            [2, 2, ..] => Self::TwoPair,
+            [x, ..] if jokers + x == 2 => Self::OnePair,
             _ => Self::HighCard,
         }
     }
@@ -147,10 +142,10 @@ impl Ord for Hand {
         match c {
             Ordering::Equal => self
                 .cards
-                .iter()
-                .interleave(other.cards.iter())
+                .into_iter()
+                .interleave(other.cards)
                 .tuples::<(_, _)>()
-                .find_map(|(a, b)| match a.cmp(b) {
+                .find_map(|(a, b)| match a.cmp(&b) {
                     Ordering::Equal => None,
                     x => Some(x),
                 })
@@ -185,7 +180,7 @@ fn parse_hand(input: &str) -> IResult<&str, Hand> {
         separated_pair(complete::alphanumeric1, complete::space1, complete::u32)(input)?;
     let cards = cards
         .chars()
-        .filter_map(|c| c.to_string().parse().ok())
+        .filter_map(|c| c.try_into().ok())
         .collect::<Vec<_>>()
         .try_into()
         .expect("should work");

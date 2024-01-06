@@ -11,6 +11,14 @@ repository.workspace = true
 nom = { workspace = true }
 itertools = {workspace = true }
 num.workspace = true
+dhat = { workspace = true }
+thiserror.workspace = true
+error-stack.workspace = true
+log.workspace = true
 
 [dev-dependencies]
 rstest.workspace = true
+test-log.workspace = true
+
+[features]
+dhat-heap = []

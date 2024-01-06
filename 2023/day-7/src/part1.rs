@@ -4,13 +4,14 @@ use nom::{character::complete, multi::separated_list1, sequence::separated_pair,
 use std::{
     cmp::{Ord, Ordering, PartialOrd},
     collections::BTreeMap,
-    str::FromStr,
 };
+use thiserror::Error;
 
-#[derive(Debug)]
-struct Day1Part1Error;
+#[derive(Debug, Error)]
+#[error("Day7 part 1 error")]
+struct Day7Part1Error;
 
-#[derive(Debug, Ord, Eq, PartialEq, PartialOrd)]
+#[derive(Debug, Ord, Eq, PartialEq, PartialOrd, Copy, Clone)]
 enum Card {
     Two,
     Three,
@@ -26,24 +27,24 @@ enum Card {
     King,
     Ace,
 }
-impl FromStr for Card {
-    type Err = Day1Part1Error;
-    fn from_str(input: &str) -> Result<Self, Self::Err> {
+impl TryFrom<char> for Card {
+    type Error = Day7Part1Error;
+    fn try_from(input: char) -> Result<Self, Self::Error> {
         match input {
-            "2" => Ok(Self::Two),
-            "3" => Ok(Self::Three),
-            "4" => Ok(Self::Four),
-            "5" => Ok(Self::Five),
-            "6" => Ok(Self::Six),
-            "7" => Ok(Self::Seven),
-            "8" => Ok(Self::Eight),
-            "9" => Ok(Self::Nine),
-            "T" => Ok(Self::Ten),
-            "J" => Ok(Self::Jack),
-            "Q" => Ok(Self::Queen),
-            "K" => Ok(Self::King),
-            "A" => Ok(Self::Ace),
-            _ => Err(Day1Part1Error),
+            '2' => Ok(Self::Two),
+            '3' => Ok(Self::Three),
+            '4' => Ok(Self::Four),
+            '5' => Ok(Self::Five),
+            '6' => Ok(Self::Six),
+            '7' => Ok(Self::Seven),
+            '8' => Ok(Self::Eight),
+            '9' => Ok(Self::Nine),
+            'T' => Ok(Self::Ten),
+            'J' => Ok(Self::Jack),
+            'Q' => Ok(Self::Queen),
+            'K' => Ok(Self::King),
+            'A' => Ok(Self::Ace),
+            _ => Err(Day7Part1Error),
         }
     }
 }
@@ -82,30 +83,26 @@ enum HandType {
 impl From<&Hand> for HandType {
     fn from(value: &Hand) -> Self {
         let map = value.cards.iter().fold(BTreeMap::new(), |mut acc, card| {
-            if let Some(c) = acc.get_mut(card) {
-                *c += 1;
-            } else {
-                acc.insert(card, 1);
-            }
+            acc.entry(card).and_modify(|c| *c += 1).or_insert(1);
             acc
         });
         match map
-            .iter()
-            .sorted_by(|a, b| b.1.cmp(a.1))
-            .collect::<Vec<_>>()[..]
+            .into_values()
+            .sorted_by(|a, &b| b.cmp(a))
+            .as_slice()
         {
-            [(_, 5), ..] => Self::FiveOfAKind,
-            [(_, 4), ..] => Self::FourOfAKind,
-            [(_, 3), (_, 2), ..] => Self::FullHouse,
-            [(_, 3), ..] => Self::ThreeOfAKind,
-            [(_, 2), (_, 2), ..] => Self::TwoPair,
-            [(_, 2), ..] => Self::OnePair,
+            [5, ..] => Self::FiveOfAKind,
+            [4, ..] => Self::FourOfAKind,
+            [3, 2, ..] => Self::FullHouse,
+            [3, ..] => Self::ThreeOfAKind,
+            [2, 2, ..] => Self::TwoPair,
+            [2, ..] => Self::OnePair,
             _ => Self::HighCard,
         }
     }
 }
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
 struct Hand {
     pub cards: [Card; 5],
     pub bet: u32,
@@ -123,10 +120,10 @@ impl Ord for Hand {
         match c {
             Ordering::Equal => self
                 .cards
-                .iter()
-                .interleave(other.cards.iter())
+                .into_iter()
+                .interleave(other.cards)
                 .tuples::<(_, _)>()
-                .find_map(|(a, b)| match a.cmp(b) {
+                .find_map(|(a, b)| match a.cmp(&b) {
                     Ordering::Equal => None,
                     x => Some(x),
                 })
@@ -149,7 +146,7 @@ pub fn part1(input: &str) -> String {
     hands.sort();
 
     hands
-        .iter()
+        .into_iter()
         .enumerate()
         .map(|(i, hand)| (i + 1) * hand.bet as usize)
         .sum::<usize>()
@@ -161,7 +158,7 @@ fn parse_hand(input: &str) -> IResult<&str, Hand> {
         separated_pair(complete::alphanumeric1, complete::space1, complete::u32)(input)?;
     let cards = cards
         .chars()
-        .filter_map(|c| c.to_string().parse().ok())
+        .filter_map(|c| c.try_into().ok())
         .collect::<Vec<_>>()
         .try_into()
         .expect("should work");

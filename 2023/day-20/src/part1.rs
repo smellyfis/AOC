@@ -1,6 +1,6 @@
 #![warn(clippy::all, clippy::pedantic)]
 
-use std::collections::{BTreeMap, HashMap, VecDeque};
+use std::collections::{BTreeMap, VecDeque};
 
 use nom::{
     branch::alt,
@@ -27,21 +27,18 @@ struct Module<'a> {
 }
 
 impl<'a> Module<'a> {
-    fn handle_pulse(&self, from: &'a str, is_high_pulse: bool) -> (Self, Option<bool>) {
-        let mut m = self.clone();
-        match (&m.mod_type, is_high_pulse) {
-            (ModuleType::Broadcast, _) => (m, Some(is_high_pulse)),
-            (ModuleType::FlipFlop(_), true) => (m, None),
-            (ModuleType::FlipFlop(is_on), false) => {
-                let was_on = *is_on;
-                m.mod_type = ModuleType::FlipFlop(!is_on);
-                (m, Some(!was_on))
+    fn handle_pulse(&mut self, from: &'a str, is_high_pulse: bool) -> Option<bool> {
+        //let mut m = self.clone();
+        match (&mut self.mod_type, is_high_pulse) {
+            (ModuleType::Broadcast, _) => Some(is_high_pulse),
+            (ModuleType::FlipFlop(_), true) => None,
+            (ModuleType::FlipFlop(ref mut is_on), false) => {
+                *is_on = !*is_on;
+                Some(*is_on)
             }
-            (ModuleType::Conjunction(map), is_high_pulse) => {
-                let mut map = map.clone();
-                map.insert(from, is_high_pulse);
-                m.mod_type = ModuleType::Conjunction(map.clone());
-                (m, Some(!map.values().all(|x| *x)))
+            (ModuleType::Conjunction(memory), is_high_pulse) => {
+                *memory.get_mut(from).unwrap() = is_high_pulse;
+                Some(!memory.values().all(|x| *x))
             }
         }
     }
@@ -76,8 +73,8 @@ impl<'a> Module<'a> {
 }
 
 fn push_button<'a>(
-    mut setup: BTreeMap<&'a str, Module<'a>>,
-) -> (BTreeMap<&'a str, Module<'a>>, (usize, usize)) {
+    setup: &mut BTreeMap<&'a str, Module<'a>>,
+) -> (usize, usize) {
     let mut queue = VecDeque::from(vec![("broadcaster", None, false)]);
     let mut low_signals = 1;
     let mut high_signals = 0;
@@ -88,14 +85,14 @@ fn push_button<'a>(
             break;
         }
         let (current_label, from, signal) = queue.pop_front().unwrap();
-        let Some(current) = setup.get(current_label) else {
+        let Some(current) = setup.get_mut(current_label) else {
             // if not found then in a sink
             continue;
         };
 
-        let (new_current, signal_to_send) = current.handle_pulse(from.unwrap_or("button"), signal);
+        let signal_to_send = current.handle_pulse(from.unwrap_or("button"), signal);
         if let Some(signal_to_send) = signal_to_send {
-            new_current
+            current
                 .connections
                 .iter()
                 .map(|x| (*x, Some(current_label), signal_to_send))
@@ -111,11 +108,12 @@ fn push_button<'a>(
                     high_signals += usize::from(signal_to_send);
                 });
         }
-        setup.insert(current_label, new_current);
+        //setup.insert(current_label, new_current);
     }
-    (setup, (low_signals, high_signals))
+    (low_signals, high_signals)
 }
 
+#[allow(dead_code)]
 fn setup_to_key(setup: &BTreeMap<&str, Module>) -> String {
     setup.values().map(Module::state_hash).collect::<String>()
 }
@@ -130,55 +128,13 @@ fn setup_to_key(setup: &BTreeMap<&str, Module>) -> String {
 #[must_use]
 pub fn part1(input: &str) -> String {
     let (_, mut setup) = parse_input(input).expect("aoc input always valid");
-    let mut cache = HashMap::new();
-    let mut high;
-    let mut low;
     let mut high_count = 0;
     let mut low_count = 0;
-    let mut key = setup_to_key(&setup);
-    let mut next_key;
-    let mut iteration = 0;
-    let cycle_start = loop {
-        if iteration >= 1000 {
-            break iteration;
-        }
-        (setup, (low, high)) = push_button(setup);
-        next_key = setup_to_key(&setup);
-        if let Some(x) = cache.insert(key, (high, low, next_key.clone(), iteration)) {
-            break x.3;
-        }
+    for _ in 0..1000 {
+        let (low, high) = push_button(&mut setup);
         high_count += high;
         low_count += low;
-        key = next_key;
-        iteration += 1;
     };
-    if cycle_start < 1000 {
-        let cycle_len = iteration - cycle_start;
-        let nnn = 1000 - iteration;
-        let number_of_cycles = nnn / cycle_len;
-        let left_over_pushes = nnn % cycle_len;
-        let (cycle_high, cycle_low) = cache
-            .iter()
-            .filter_map(|(_, (high, low, _, iter))| {
-                (*iter >= cycle_start && *iter <= iteration).then_some((high, low))
-            })
-            .fold((0, 0), |(high_total, low_total), (high, low)| {
-                (high_total + high, low_total + low)
-            });
-        high_count += number_of_cycles * cycle_high;
-        low_count += number_of_cycles * cycle_low;
-        let (left_high, left_low) = cache
-            .iter()
-            .filter_map(|(_, (high, low, _, iter))| {
-                (*iter >= cycle_start && *iter <= iteration).then_some((high, low))
-            })
-            .take(left_over_pushes)
-            .fold((0, 0), |(high_total, low_total), (high, low)| {
-                (high_total + high, low_total + low)
-            });
-        high_count += left_high;
-        low_count += left_low;
-    }
 
     (high_count * low_count).to_string()
 }
@@ -252,7 +208,7 @@ mod test {
 
     use super::*;
 
-    #[rstest]
+    #[test_log::test(rstest)]
     #[case(
         "broadcaster -> a, b, c
 %a -> b

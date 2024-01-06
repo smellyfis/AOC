@@ -38,13 +38,13 @@ struct Module<'a> {
 }
 
 impl<'a> Module<'a> {
-    fn handle_pulse(&mut self, from: &'a str, pulse: Signal) -> Vec<(&'a str, &'a str, Signal)> {
+    fn handle_pulse(&mut self, from: &'a str, pulse: Signal) -> Option<Signal>{
         /*println!(
             "{from} -{}-> {}",
             if pulse == Signal::Low { "low" } else { "high" },
             self.label
         );*/
-        let signal_to_send = match (&mut self.mod_type, pulse) {
+        match (&mut self.mod_type, pulse) {
             (ModuleType::Broadcast, _) => Some(pulse),
             (ModuleType::FlipFlop(_), Signal::High) => None,
             (ModuleType::FlipFlop(ref mut state), Signal::Low) => {
@@ -67,15 +67,6 @@ impl<'a> Module<'a> {
                     Signal::High
                 })
             }
-        };
-        //println!("{self:#?}");
-        if let Some(signal_to_send) = signal_to_send {
-            self.connections
-                .iter()
-                .map(|x| (*x, self.label, signal_to_send))
-                .collect()
-        } else {
-            vec![]
         }
     }
 
@@ -114,7 +105,6 @@ impl<'a> Module<'a> {
 
 fn push_button<'a>(
     setup: &mut BTreeMap<&'a str, Module<'a>>,
-    cache: &mut BTreeMap<&'a str, Vec<String>>,
 ) -> (bool, Vec<(&'a str, Signal)>) {
     let mut queue = VecDeque::from(vec![("broadcaster", "button", Signal::Low)]);
     let mut triggered = Vec::new();
@@ -127,14 +117,13 @@ fn push_button<'a>(
             continue;
         };
 
-        cache
-            .entry(current_label)
-            .and_modify(|list| list.push(current.state_hash()))
-            .or_insert(vec![current.state_hash()]);
-
-        let signal_to_send = current.handle_pulse(from, signal);
-        triggered.push((current_label, signal));
-        queue.extend(signal_to_send);
+        if let Some(signal_to_send) = current.handle_pulse(from, signal){
+            triggered.push((current_label, signal));
+            current.connections.iter().for_each(|con| {
+                queue.push_back((con, current_label, signal_to_send));
+            });
+            //queue.extend(signal_to_send);
+        }
     }
     (false, triggered)
 }
@@ -177,7 +166,6 @@ pub fn part2(input: &str) -> String {
         })
         .collect::<Vec<_>>();
 
-    let mut cache = BTreeMap::new();
     //loop through pushing the button till we found all the connecting nodes cycles
     for i in 0_u64.. {
         if penultimate_modules.is_empty() {
@@ -186,7 +174,7 @@ pub fn part2(input: &str) -> String {
 
         //push the button
         //println!("push the button {i}");
-        let (triggered_early, triggered) = push_button(&mut setup, &mut cache);
+        let (triggered_early, triggered) = push_button(&mut setup);
         if triggered_early {
             return (i + 1).to_string();
         }
@@ -209,7 +197,6 @@ pub fn part2(input: &str) -> String {
     //get the LCM of all the last nodes connections
     // TODO this is ugly cause it assumes lineailty from the end of the input
 
-    //println!("{cache:#?}");
     lcm(&penulttimate_lengths).to_string()
 }
 
@@ -300,7 +287,7 @@ mod test {
 
     #[rstest]
     #[case(
-        "broadcaster -> a, inv
+        "broadcaster -> a
 %c -> d
 %a -> b
 &inv -> con
