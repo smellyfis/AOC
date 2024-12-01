@@ -11,10 +11,13 @@ use thiserror::Error;
 pub enum Day1Part2Error {
     #[error("Problem parsing Day 1")]
     ParseError,
-    #[error("Catastophic error")]
-    FatalError,
 }
 
+/// Day-1 Part 2 for 2024 advent of code
+/// Problem can be found here: <https://adventofcode.com/2024/day/1#part2>
+///
+/// # Errors
+/// - `ParseError` there was an issue with the parser
 pub fn part2(input: &str) -> Result<u64, Day1Part2Error> {
     let (_, (col1, col2)) = parse_input(input)
         .map_err(|x| Report::from(x.to_owned()))

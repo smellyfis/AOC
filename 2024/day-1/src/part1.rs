@@ -11,6 +11,11 @@ pub enum Day1Part1Error {
     ParseError,
 }
 
+/// Day-1 Part 1 for 2024 advent of code
+/// Problem can be found here: <https://adventofcode.com/2024/day/1>
+///
+/// # Errors
+/// - `ParseError` there was an issue with the parser
 pub fn part1(input: &str) -> Result<u64, Day1Part1Error> {
     let (_, (mut col1, mut col2)) = parse_input(input)
         .map_err(|x| Report::from(x.to_owned()))
