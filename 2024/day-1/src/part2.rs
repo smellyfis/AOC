@@ -11,6 +11,8 @@ use thiserror::Error;
 pub enum Day1Part2Error {
     #[error("Problem parsing Day 1")]
     ParseError,
+    #[error("Catastophic error")]
+    FatalError,
 }
 
 pub fn part2(input: &str) -> Result<u64, Day1Part2Error> {
@@ -22,7 +24,10 @@ pub fn part2(input: &str) -> Result<u64, Day1Part2Error> {
         *val += 1;
         acc
     });
-    Ok(col1.iter().map(|x| *x * col2_bucket.get(x).or(Some(&0)).unwrap()).sum())
+    Ok(col1
+        .iter()
+        .map(|x| *x * col2_bucket.get(x).unwrap_or(&0))
+        .sum())
 }
 
 fn parse_input(input: &str) -> IResult<&str, (Vec<u64>, Vec<u64>)> {
@@ -51,4 +56,3 @@ mod test {
         assert_eq!(result, 31);
     }
 }
-
