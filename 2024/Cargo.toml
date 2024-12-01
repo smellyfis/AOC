@@ -1,0 +1,33 @@
+[workspace]
+resolver = "2"
+members = [ "day-*" ]
+
+[workspace.package]
+version = "2024.0.0"
+edition = "2021"
+authors = [ "Dylan Thies" ]
+repository = "https://github.com/smellyfis/AOC.git"
+
+[workspace.dependencies]
+derive-getters = "0.5.0"
+error-stack = "0.5.0"
+itertools = "0.13.0"
+log = "0.4.22"
+nom = "7.1.3"
+nom_locate= "4.2.0"
+rstest = "0.23.0"
+rstest_reuse = "0.7.0"
+dhat = "0.3.3"
+glam = "0.29.2"
+petgraph = "0.6.5"
+num = "0.4.3"
+num-traits = "0.2.19"
+rustworkx-core = "0.15.1"
+pathfinding = "4.11.0"
+test-log = {version="0.2.16", features=["default", "unstable"]}
+thiserror = "2.0.3"
+
+
+[profile.dhat]
+inherits = "release"
+debug = true
