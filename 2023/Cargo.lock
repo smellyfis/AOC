@@ -274,6 +274,7 @@ dependencies = [
 name = "day-21"
 version = "2023.0.0"
 dependencies = [
+ "dhat",
  "glam",
  "itertools 0.12.0",
  "nom",
@@ -285,6 +286,7 @@ dependencies = [
 name = "day-22"
 version = "2023.0.0"
 dependencies = [
+ "dhat",
  "glam",
  "itertools 0.12.0",
  "nom",

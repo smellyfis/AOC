@@ -17,9 +17,9 @@ pub enum Day2Part2Error {
 
 #[derive(Debug)]
 struct Round {
-    pub red_n: u32,
-    pub green_n: u32,
-    pub blue_n: u32,
+    pub red: u32,
+    pub green: u32,
+    pub blue: u32,
 }
 
 #[derive(Debug)]
@@ -32,14 +32,14 @@ impl Game {
     fn to_power(&self) -> u64 {
         let (r, g, b) = self.rounds.iter().fold((0_u64, 0_u64, 0_u64), |acc, x| {
             let (mut val_r, mut val_g, mut val_b) = acc;
-            if u64::from(x.red_n) > acc.0 {
-                val_r = x.red_n.into();
+            if u64::from(x.red) > acc.0 {
+                val_r = x.red.into();
             }
-            if u64::from(x.green_n) > acc.1 {
-                val_g = x.green_n.into();
+            if u64::from(x.green) > acc.1 {
+                val_g = x.green.into();
             }
-            if u64::from(x.blue_n) > acc.2 {
-                val_b = x.blue_n.into();
+            if u64::from(x.blue) > acc.2 {
+                val_b = x.blue.into();
             }
             (val_r, val_g, val_b)
         });
@@ -70,15 +70,15 @@ fn process_block(input: &str) -> nom::IResult<&str, (u32, String)> {
 fn process_round(input: &str) -> nom::IResult<&str, Round> {
     let (i, blocks) = separated_list1(tag(", "), process_block)(input)?;
     let mut round = Round {
-        red_n: 0,
-        green_n: 0,
-        blue_n: 0,
+        red: 0,
+        green: 0,
+        blue: 0,
     };
     for (cnt, color) in blocks {
         match color.as_str() {
-            "red" => round.red_n = cnt,
-            "green" => round.green_n = cnt,
-            "blue" => round.blue_n = cnt,
+            "red" => round.red = cnt,
+            "green" => round.green = cnt,
+            "blue" => round.blue = cnt,
             _ => panic!("this should be a color name"),
         };
     }

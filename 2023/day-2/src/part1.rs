@@ -18,9 +18,9 @@ pub enum Day2Part1Error {
 
 #[derive(Debug)]
 struct Round {
-    pub red_n: u32,
-    pub green_n: u32,
-    pub blue_n: u32,
+    pub red: u32,
+    pub green: u32,
+    pub blue: u32,
 }
 
 #[derive(Debug)]
@@ -35,7 +35,7 @@ impl Game {
             .iter()
             .find_map(|r| {
                 //TODO if inverted use find_map
-                if r.red_n > 12 || r.green_n > 13 || r.blue_n > 14 {
+                if r.red > 12 || r.green > 13 || r.blue > 14 {
                     Some(self.id)
                 } else {
                     None
@@ -74,15 +74,15 @@ fn process_block(input: &str) -> nom::IResult<&str, (u32, String)> {
 fn process_round(input: &str) -> nom::IResult<&str, Round> {
     let (i, blocks) = separated_list1(tag(", "), process_block)(input)?;
     let mut round = Round {
-        red_n: 0,
-        green_n: 0,
-        blue_n: 0,
+        red: 0,
+        green: 0,
+        blue: 0,
     };
     for (cnt, color) in blocks {
         match color.as_str() {
-            "red" => round.red_n = cnt,
-            "green" => round.green_n = cnt,
-            "blue" => round.blue_n = cnt,
+            "red" => round.red = cnt,
+            "green" => round.green = cnt,
+            "blue" => round.blue = cnt,
             _ => panic!("this should be a color name"),
         };
     }

@@ -11,3 +11,7 @@ repository.workspace = true
 nom = { workspace = true }
 itertools = {workspace = true }
 glam.workspace = true
+dhat = { workspace = true }
+
+[features]
+dhat-heap = []
