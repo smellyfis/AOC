@@ -57,11 +57,12 @@ pub fn part2(input: &str) -> String {
 
     let pos_in_cycle = start_of_cycle + (cycles - end_of_cycle) % len_of_cyle;
 
-    map = cache
-        .values()
-        .find_map(|(look_at_map, pos)| (*pos == pos_in_cycle).then_some(look_at_map))
-        .unwrap()
-        .clone();
+    map.clone_from(
+        cache
+            .values()
+            .find_map(|(look_at_map, pos)| (*pos == pos_in_cycle).then_some(look_at_map))
+            .unwrap(),
+    );
 
     let mut total = 0_usize;
     for col in 0..maxes.x {

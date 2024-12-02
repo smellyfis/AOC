@@ -34,7 +34,7 @@ pub fn part1(input: &str) -> String {
         .filter(|x| {
             x.generate_adjacent()
                 .iter()
-                .any(|t| symbols.get(t).is_some())
+                .any(|t| symbols.contains_key(t))
         })
         .map(|x| x.no)
         .sum::<u64>()

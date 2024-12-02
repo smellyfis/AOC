@@ -23,13 +23,13 @@ impl Drawing {
                     .iter()
                     .filter(|mound| mound.x + span >= reflect_col && mound.x < reflect_col)
                     .map(|mound| (2 * reflect_col - mound.x - 1, mound.y).into())
-                    .all(|mound_reflect| self.mounds.get(&mound_reflect).is_some())
+                    .all(|mound_reflect| self.mounds.contains(&mound_reflect))
                     && self
                         .mounds
                         .iter()
                         .filter(|mound| mound.x < reflect_col + span && mound.x >= reflect_col)
                         .map(|mound| (2 * reflect_col - mound.x - 1, mound.y).into())
-                        .all(|mound_reflect| self.mounds.get(&mound_reflect).is_some())
+                        .all(|mound_reflect| self.mounds.contains(&mound_reflect))
             })
             .sum::<u32>();
         let row_score = (1..max_row)
@@ -40,13 +40,13 @@ impl Drawing {
                     .iter()
                     .filter(|mound| mound.y + span >= reflect_row && mound.y < reflect_row)
                     .map(|mound| (mound.x, 2 * reflect_row - mound.y - 1).into())
-                    .all(|mound_reflect| self.mounds.get(&mound_reflect).is_some())
+                    .all(|mound_reflect| self.mounds.contains(&mound_reflect))
                     && self
                         .mounds
                         .iter()
                         .filter(|mound| mound.y < reflect_row + span && mound.y >= reflect_row)
                         .map(|mound| (mound.x, 2 * reflect_row - mound.y - 1).into())
-                        .all(|mound_reflect| self.mounds.get(&mound_reflect).is_some())
+                        .all(|mound_reflect| self.mounds.contains(&mound_reflect))
             })
             .sum::<u32>()
             * 100;

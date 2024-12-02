@@ -24,14 +24,14 @@ impl Drawing {
                     .iter()
                     .filter(|mound| mound.x + span >= reflect_col && mound.x < reflect_col)
                     .map(|mound| (2 * reflect_col - mound.x - 1, mound.y).into())
-                    .filter(|mound_reflect| self.mounds.get(mound_reflect).is_none())
+                    .filter(|mound_reflect| !self.mounds.contains(mound_reflect))
                     .count()
                     + self
                         .mounds
                         .iter()
                         .filter(|mound| mound.x < reflect_col + span && mound.x >= reflect_col)
                         .map(|mound| (2 * reflect_col - mound.x - 1, mound.y).into())
-                        .filter(|mound_reflect| self.mounds.get(mound_reflect).is_none())
+                        .filter(|mound_reflect| !self.mounds.contains(mound_reflect))
                         .count())
                     == 1
             })
@@ -45,14 +45,14 @@ impl Drawing {
                     .iter()
                     .filter(|mound| mound.y + span >= reflect_row && mound.y < reflect_row)
                     .map(|mound| (mound.x, 2 * reflect_row - mound.y - 1).into())
-                    .filter(|mound_reflect| self.mounds.get(mound_reflect).is_none())
+                    .filter(|mound_reflect| !self.mounds.contains(mound_reflect))
                     .count()
                     + self
                         .mounds
                         .iter()
                         .filter(|mound| mound.y < reflect_row + span && mound.y >= reflect_row)
                         .map(|mound| (mound.x, 2 * reflect_row - mound.y - 1).into())
-                        .filter(|mound_reflect| self.mounds.get(mound_reflect).is_none())
+                        .filter(|mound_reflect| !self.mounds.contains(mound_reflect))
                         .count())
                     == 1
             })

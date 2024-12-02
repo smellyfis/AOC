@@ -74,6 +74,7 @@ impl ItemMap {
             .expect("always")
     }
 }
+
 /// part1 of day 5 of AOC 2023
 ///
 /// # Arguments
@@ -81,7 +82,6 @@ impl ItemMap {
 ///
 /// # Panics
 /// panics whenever the input isn't parsable
-
 #[must_use]
 pub fn part1(input: &str) -> String {
     let (_input, (mut to_process, maps)) = parse_input(input).expect("aoc always has input");

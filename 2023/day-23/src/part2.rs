@@ -47,8 +47,7 @@ pub fn part2(input: &str) -> String {
                 .filter_map(|dir| {
                     let next_pos = dir + *pos;
                     node_map
-                        .get(&next_pos)
-                        .is_some()
+                        .contains_key(&next_pos)
                         .then(|| (node_map[pos], node_map[&next_pos], 1))
                 })
                 .collect::<Vec<_>>()
