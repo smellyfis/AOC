@@ -1,6 +1,7 @@
 #![warn(clippy::all, clippy::pedantic)]
 
 use error_stack::{Report, Result, ResultExt};
+use itertools::Itertools;
 use nom::{character::complete, multi::separated_list1, IResult};
 use std::cmp::Ordering;
 use thiserror::Error;
@@ -20,11 +21,11 @@ impl XmasReport {
     pub fn is_safe(&self) -> Safety {
         fn internal_check(levels: &[u32]) -> Safety {
             let mut dir = Ordering::Equal;
-            for i in 1..levels.len() {
-                if !(1_u32..=3).contains(&(levels[i - 1].abs_diff(levels[i]))) {
+            for (a, b) in levels.iter().tuple_windows() {
+                if !(1_u32..=3).contains(&(a.abs_diff(*b))) {
                     return Safety::UnSafe;
                 }
-                let new_dir = levels[i - 1].cmp(&levels[i]);
+                let new_dir = a.cmp(b);
                 if dir != Ordering::Equal && dir != new_dir {
                     return Safety::UnSafe;
                 }
