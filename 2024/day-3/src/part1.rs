@@ -1,19 +1,30 @@
 #![warn(clippy::all, clippy::pedantic)]
 
-use error_stack::Result;
-use thiserror::Error;
+use error_stack::{Report, Result, ResultExt};
 use regex::Regex;
+use thiserror::Error;
 
 // day-3
 #[derive(Debug, Error)]
-pub enum Day3Part1Error{
+pub enum Day3Part1Error {
     #[error("Problem parsing Day 3")]
     ParseError,
 }
 
-pub fn part1 (input: &str) -> Result<String, Day3Part1Error> {
-    let re = Regex::new(r"mul\((\d{1,3}),(\d{1,3})\)").unwrap();
-    Ok(re.captures_iter(input).map(|x| &x[1].parse::<i64>().unwrap() * &x[2].parse::<i64>().unwrap()).sum::<i64>().to_string())
+/// Day-2 Part 1 for 2024 advent of code
+/// Problem can be found here: <https://adventofcode.com/2024/day/2>
+///
+/// # Errors
+/// - `ParseError` there was an issue with the parser
+pub fn part1(input: &str) -> Result<String, Day3Part1Error> {
+    let re = Regex::new(r"mul\((\d{1,3}),(\d{1,3})\)")
+        .map_err( Report::from)
+        .change_context(Day3Part1Error::ParseError)?;
+    Ok(re
+        .captures_iter(input)
+        .map(|x| x[1].parse::<i64>().unwrap_or(0) * x[2].parse::<i64>().unwrap_or(0))
+        .sum::<i64>()
+        .to_string())
 }
 
 #[cfg(test)]
