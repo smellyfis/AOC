@@ -82,7 +82,6 @@ fn main() -> std::io::Result<()> {
             } else {
                 0
             };
-            //            println!("Right: {}, {:?}", right_score, right_part);
             let left_part = board[y].iter().rev().skip(x_inv).collect::<Vec<_>>();
             let left_score = if left_part.len() > 1 {
                 let score = left_part
@@ -99,7 +98,6 @@ fn main() -> std::io::Result<()> {
             } else {
                 0
             };
-            //            println!("Left: {}, {:?}", left_score, left_part);
             let down_part = board.iter().map(|row| row[x]).skip(y).collect::<Vec<_>>();
             let down_score = if down_part.len() > 1 {
                 let score = down_part
@@ -116,7 +114,6 @@ fn main() -> std::io::Result<()> {
             } else {
                 0
             };
-            //            println!("Down: {}, {:?}", down_score, down_part);
             let up_part = board
                 .iter()
                 .map(|row| row[x])
@@ -138,12 +135,7 @@ fn main() -> std::io::Result<()> {
             } else {
                 0
             };
-            //            println!("Up: {}. {:?}", up_score, up_part);
             let tree_score = right_score * left_score * down_score * up_score;
-            //            println!(
-            //                "({}, {})({}) = {} = {} * {} * {} * {}",
-            //                x, y, tree_from_top_left, tree_score, up_score, left_score, down_score, right_score
-            //            );
             scores[y][x] = tree_score;
         }
     }

@@ -26,7 +26,7 @@ rustworkx-core = "0.15.1"
 pathfinding = "4.11.0"
 test-log = {version="0.2.16", features=["default", "unstable"]}
 thiserror = "2.0.3"
-
+regex = "1.11.1"
 
 [profile.dhat]
 inherits = "release"

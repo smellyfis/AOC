@@ -156,6 +156,7 @@ dependencies = [
  "itertools",
  "log",
  "nom",
+ "regex",
  "test-log",
  "thiserror",
 ]
