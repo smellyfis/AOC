@@ -19,7 +19,7 @@ pub enum Day5Part1Error {
 type Orderings = HashMap<u32, Vec<u32>>;
 
 /// Day-5 Part 1 for 2024 advent of code
-/// Problem can be found here: <https://adventofcode.com/2024/day/3>
+/// Problem can be found here: <https://adventofcode.com/2024/day/5>
 ///
 /// # Errors
 /// - `ParseError` there was an issue with the parser

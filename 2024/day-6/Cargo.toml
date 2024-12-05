@@ -1,0 +1,23 @@
+[package]
+name = "day-6"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+
+[dependencies]
+nom.workspace = true
+itertools.workspace = true
+log.workspace = true
+error-stack.workspace = true
+thiserror.workspace = true
+dhat.workspace = true
+
+[dev-dependencies]
+test-log.workspace = true
+
+[features]
+dhat-heap = []

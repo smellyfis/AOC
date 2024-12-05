@@ -41,8 +41,8 @@ pub enum Day2Part1Error {
     ParseError,
 }
 
-/// Day-2 Part 1 for 2024 advent of code
-/// Problem can be found here: <https://adventofcode.com/2024/day/2>
+/// Day-3 Part 1 for 2024 advent of code
+/// Problem can be found here: <https://adventofcode.com/2024/day/3>
 ///
 /// # Errors
 /// - `ParseError` there was an issue with the parser
