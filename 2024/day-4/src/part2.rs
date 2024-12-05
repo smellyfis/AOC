@@ -11,6 +11,14 @@ pub enum Day4Part2Error {
     ParseError,
 }
 
+/// Day-4 Part 2 for 2024 advent of code
+/// Problem can be found here: <https://adventofcode.com/2024/day/4#part2>
+///
+/// # Errors
+/// - `ParseError` there was an issue with the parser
+///
+/// # Panics
+/// - If there is a catastropic error as it only panics in event that a lenght is negative
 pub fn part2(input: &str) -> Result<String, Day4Part2Error> {
     //read in grid
     let grid = input
@@ -39,7 +47,8 @@ pub fn part2(input: &str) -> Result<String, Day4Part2Error> {
                         let up_back = point + IVec2::NEG_ONE;
                         let down_forward = point + IVec2::ONE;
                         let down_back = point + IVec2::new(1, -1);
-                        if ((grid[up_back.x as u32 as usize][up_back.y as u32 as usize] == b'M'
+                        #[allow(clippy::cast_sign_loss)]
+                        (((grid[up_back.x as u32 as usize][up_back.y as u32 as usize] == b'M'
                             && grid[down_forward.x as u32 as usize]
                                 [down_forward.y as u32 as usize]
                                 == b'S')
@@ -56,14 +65,7 @@ pub fn part2(input: &str) -> Result<String, Day4Part2Error> {
                                     == b'S'
                                     && grid[up_forward.x as u32 as usize]
                                         [up_forward.y as u32 as usize]
-                                        == b'M'))
-                        {
-                            //println!(" found at {}-{}", point.x, point.y);
-                            1
-                        } else {
-                            0
-                        }
-                        // todo!("at pos {row_num} - {col_num}")
+                                        == b'M'))).into()
                     } else {
                         0_usize
                     }

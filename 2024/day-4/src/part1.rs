@@ -11,13 +11,25 @@ pub enum Day4Part1Error {
     ParseError,
 }
 
+#[allow(clippy::cast_sign_loss)]
+/// Day-4 Part 1 for 2024 advent of code
+/// Problem can be found here: <https://adventofcode.com/2024/day/4>
+///
+/// # Errors
+/// - `ParseError` there was an issue with the parser
+///
+/// # Panics
+/// - If there is a catastropic error as it only panics in event that a lenght is negative
 pub fn part1(input: &str) -> Result<String, Day4Part1Error> {
     //read in grid
     let grid = input
         .lines()
         .map(|line| Vec::from(line.as_bytes()))
         .collect::<Vec<_>>();
-    let num_of_rows = grid.len().try_into().unwrap();
+    let num_of_rows = grid
+        .len()
+        .try_into()
+        .expect("length cannot be negative ever");
     let num_of_cols = grid[0].len().try_into().unwrap(); //because we know it will be rectangular
                                                          //window over each letter (skip over not x's
     let total: usize = grid
@@ -54,6 +66,9 @@ pub fn part1(input: &str) -> Result<String, Day4Part1Error> {
                             let m = point + *dir;
                             let a = point + 2 * *dir;
                             let s = point + 3 * *dir;
+                            grid.get(m.x as u32 as usize)
+                                .map(|g| g.get(m.y as u32 as usize))
+                                .unwrap();
                             grid[m.x as u32 as usize][m.y as u32 as usize] == b'M'
                                 && grid[a.x as u32 as usize][a.y as u32 as usize] == b'A'
                                 && grid[s.x as u32 as usize][s.y as u32 as usize] == b'S'
