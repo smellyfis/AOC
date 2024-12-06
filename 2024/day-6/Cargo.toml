@@ -15,6 +15,7 @@ log.workspace = true
 error-stack.workspace = true
 thiserror.workspace = true
 dhat.workspace = true
+glam.workspace =true
 
 [dev-dependencies]
 test-log.workspace = true
